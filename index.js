@@ -113,29 +113,39 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`https://triqride.onrender.com/api/list/${id}`)
+    fetch(`http://localhost:4500/api/list/${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
                 alert("User doesn't have a registered FCM token.");
                 return;
             }
-    
+
             // Prepare the notification data
             const now = new Date();
-            const serverTime = now.toTimeString().split(' ')[0]; // Extract time
-            const serverDate = now.toISOString().split('T')[0]; // Extract date
-    
+            
+            // Format serverTime to 12-hour format with AM/PM
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
+
+            // Format serverDate to "December 30, 2024" format
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = now.toLocaleDateString('en-US', options);
+
             const notificationData = {
                 id: user.id,
-                title: 'Report Notice: ',
-                body: `Report Submitted to Municipal Office Plate Number: ${user.Plate_Number}.`,
-                serverTime: serverTime,
-                serverDate: serverDate
+                title: 'Report Notice',
+                body: `Report Submitted to Municipal Office Plate Number ${user.Plate_Number}.`,
+                serverTime: formattedTime,
+                serverDate: formattedDate
             };
-    
+
             // Send the notification request to the server
-            return fetch("https://triqride.onrender.com/sendnotification", {
+            return fetch("http://localhost:4500/sendnotification", {
                 method: "POST",
                 body: JSON.stringify(notificationData),
                 headers: {
