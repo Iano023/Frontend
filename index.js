@@ -3,7 +3,7 @@ const submit = document.querySelector('#submit');
 const searchButton = document.querySelector('#searchButton');
 const searchInput = document.querySelector('#search');
 
-// Replace 'https://your-live-api-url' with your actual Render live API URL
+// Replace 'http://localhost:4500' with the live API base URL
 const API_BASE_URL = 'https://triqride.onrender.com';
 
 // Handle form submission
@@ -20,13 +20,14 @@ submit.addEventListener("click", () => {
         headers: {
             "Content-Type": "application/json",
         },
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Success!");
-        location.reload();
-    })
-    .catch((error) => console.log(error));
+    }).then(response => {
+        if (response.ok) {
+            alert("Success!");
+            location.reload();
+        } else {
+            alert("Error occurred!");
+        }
+    }).catch((error) => console.log(error));
 });
 
 window.addEventListener('load', () => {
@@ -87,14 +88,13 @@ function deleteMember(id) {
         headers: {
             "Content-Type": "application/json"
         }
-    })
-    .then(response => response.text())
-    .then(response => {
-        console.log(response);
-        alert("Successfully Deleted!");
-        location.reload();
-    })
-    .catch(error => console.log(error));
+    }).then(response => response.text())
+        .then(response => {
+            console.log(response);
+            alert("Successfully Deleted!");
+            location.reload();
+        })
+        .catch(error => console.log(error));
 }
 
 // Search functionality
@@ -105,7 +105,7 @@ searchButton.addEventListener('click', () => {
             .then(response => response.json())
             .then(data => {
                 let filteredData = data.filter(member =>
-                    member.Plate_number.toLowerCase().includes(query) ||
+                    member.Plate_Number.toLowerCase().includes(query) || // Use Plate_Number instead of Plate_number
                     member.Driver_name.toLowerCase().includes(query) ||
                     member.Barangay.toLowerCase().includes(query) ||
                     member.Violations.toLowerCase().includes(query)
