@@ -96,7 +96,7 @@ searchButton.addEventListener('click', () => {
             .then(response => response.json())
             .then(data => {
                 let filteredData = data.filter(member =>
-                    member.Plate_Number.toLowerCase().includes(query) || // Use Plate_Number instead of Plate_number
+                    member.Plate_Number.toLowerCase().includes(query) || 
                     member.Driver_name.toLowerCase().includes(query) ||
                     member.Barangay.toLowerCase().includes(query) ||
                     member.Violations.toLowerCase().includes(query)
@@ -113,7 +113,7 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`https://triqride.onrender.com/api/list${id}`)
+    fetch(`https://triqride.onrender.com/api/list/${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
