@@ -113,7 +113,7 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`http://localhost:4500/api/list/${id}`)
+    fetch(`https://triqride.onrender.com/api/list${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
@@ -145,7 +145,7 @@ function sendNotification(id) {
             };
 
             // Send the notification request to the server
-            return fetch("http://localhost:4500/sendnotification", {
+            return fetch("https://triqride.onrender.com/sendnotification", {
                 method: "POST",
                 body: JSON.stringify(notificationData),
                 headers: {
