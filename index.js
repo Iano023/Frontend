@@ -3,6 +3,9 @@ const submit = document.querySelector('#submit');
 const searchButton = document.querySelector('#searchButton');
 const searchInput = document.querySelector('#search');
 
+// Replace 'https://your-live-api-url' with your actual Render live API URL
+const API_BASE_URL = 'https://triqride.onrender.com';
+
 // Handle form submission
 submit.addEventListener("click", () => {
     let plate = document.querySelector("#plate").value;
@@ -11,15 +14,19 @@ submit.addEventListener("click", () => {
     let actions = document.querySelector("#actions").value;
 
     let formData = { plate, driver, brgy, actions };
-    fetch("http://localhost:4500/api/list", {
+    fetch(`${API_BASE_URL}/api/list`, {
         method: "POST",
         body: JSON.stringify(formData),
         headers: {
             "Content-Type": "application/json",
         },
-    }).catch((error) => console.log(error));
-    alert("Success!");
-    location.reload();
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Success!");
+        location.reload();
+    })
+    .catch((error) => console.log(error));
 });
 
 window.addEventListener('load', () => {
@@ -28,7 +35,7 @@ window.addEventListener('load', () => {
 
 // Fetch and display all users
 function getUsers() {
-    fetch('http://localhost:4500/api/list/', { mode: 'cors' })
+    fetch(`${API_BASE_URL}/api/list/`, { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
             displayUsers(data);
@@ -74,25 +81,27 @@ function displayUsers(data) {
 function deleteMember(id) {
     let formData = { id };
 
-    fetch(`http://localhost:4500/api/list/`, {
+    fetch(`${API_BASE_URL}/api/list/`, {
         method: "DELETE",
         body: JSON.stringify(formData),
         headers: {
             "Content-Type": "application/json"
         }
-    }).then(response => response.text())
-        .then(response => console.log(response))
-        .catch(error => console.log(error));
-
-    alert("Successfully Deleted!");
-    location.reload();
+    })
+    .then(response => response.text())
+    .then(response => {
+        console.log(response);
+        alert("Successfully Deleted!");
+        location.reload();
+    })
+    .catch(error => console.log(error));
 }
 
 // Search functionality
 searchButton.addEventListener('click', () => {
     const query = searchInput.value.toLowerCase();
     if (query) {
-        fetch('http://localhost:4500/api/list/', { mode: 'cors' })
+        fetch(`${API_BASE_URL}/api/list/`, { mode: 'cors' })
             .then(response => response.json())
             .then(data => {
                 let filteredData = data.filter(member =>
@@ -113,7 +122,7 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`http://localhost:4500/api/list/${id}`)
+    fetch(`${API_BASE_URL}/api/list/${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
@@ -129,7 +138,7 @@ function sendNotification(id) {
             };
 
             // Send the notification request to the server
-            return fetch("http://localhost:4500/sendnotification", {
+            return fetch(`${API_BASE_URL}/sendnotification`, {
                 method: "POST",
                 body: JSON.stringify(notificationData),
                 headers: {
