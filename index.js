@@ -130,11 +130,18 @@ function sendNotification(id) {
                 return;
             }
 
+            // Get current server time and date
+            const now = new Date();
+            const serverTime = now.toTimeString().split(' ')[0]; // HH:MM:SS format
+            const serverDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+
             // Prepare the notification data
             const notificationData = {
                 id: user.id,
                 title: 'Report Notice',
                 body: `Report Submitted to Municipal Office Plate Number ${user.Plate_Number}.`,
+                serverTime: serverTime,
+                serverDate: serverDate
             };
 
             // Send the notification request to the server
