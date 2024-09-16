@@ -138,8 +138,8 @@ function sendNotification(id) {
 
             const notificationData = {
                 id: user.id,
-                title: 'Report Notice',
-                body: `Report Submitted to Municipal Office Plate Number ${user.Plate_Number}.`,
+                title: 'Report Notice:',
+                body: `Report Submitted to Municipal Office Plate Number: ${user.Plate_Number}.`,
                 serverTime: formattedTime,
                 serverDate: formattedDate
             };
