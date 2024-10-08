@@ -47,13 +47,16 @@ imageUpload.addEventListener("change", (event) => {
 });
 
 // Handle form submission
-submit.addEventListener("click", async () => {
+submit.addEventListener("click", () => {
     let plate = document.querySelector("#plate").value;
     let driver = document.querySelector("#driver").value;
     let brgy = document.querySelector("#brgy").value;
     let actions = document.querySelector("#actions").value;
-    let imageUploadFile = imageUpload.files[0]; // Get the uploaded file
 
+    // Get the uploaded file
+    let imageUploadFile = imageUpload.files[0]; // Get the first uploaded file
+
+    // Create a FormData object
     let formData = new FormData();
     formData.append("plate", plate);
     formData.append("driver", driver);
@@ -61,19 +64,10 @@ submit.addEventListener("click", async () => {
     formData.append("actions", actions);
 
     if (imageUploadFile) {
-        const storageRef = firebase.storage().ref(`images/${imageUploadFile.name}`);
-        try {
-            const snapshot = await storageRef.put(imageUploadFile);
-            const downloadURL = await snapshot.ref.getDownloadURL();
-
-            formData.append("imageUrl", downloadURL); // Append the Firebase image URL
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            alert("Error uploading image to Firebase.");
-            return;
-        }
+        formData.append("image", imageUploadFile); // Append the image file
     }
 
+    // Send form data to the server
     fetch("https://triqride.onrender.com/api/list", {
         method: "POST",
         body: formData, // Use FormData object as the body
@@ -115,8 +109,8 @@ function getUsers() {
 function displayUsers(data) {
     let html = "";  
     data.forEach(element => {
-        // Check if the image URL exists from Firebase, or use a placeholder image
-        const imageSrc = element.image ? element.image : 'placeholder.jpg'; // Firebase image URL is already in element.image
+        // Construct the correct image URL
+        const imageSrc = element.image ? `https://triqride.onrender.com${element.image}` : 'placeholder.jpg'; // Use backend URL
 
         html += `
             <tr>
