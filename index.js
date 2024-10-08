@@ -115,10 +115,10 @@ function getUsers() {
 function displayUsers(data) {
     let html = "";  
     data.forEach(element => {
-        // Check if the image URL exists from Firebase, or use a placeholder image
-        const imageSrc = element.image ? element.image : 'placeholder.jpg'; // Firebase image URL is already in element.image
+        // Construct the correct image URL
+        const imageSrc = element.image ? https://triqride.onrender.com${element.image} : 'placeholder.jpg'; // Use backend URL
 
-        html += `
+        html += 
             <tr>
                 <td>${element.id}</td>
                 <td>
@@ -143,10 +143,10 @@ function displayUsers(data) {
                         <i class="fas fa-download"></i> Download QR
                     </button>
                 </td>
-            </tr>`;
+            </tr>;
     });
     document.querySelector('tbody').innerHTML = html;
-}
+
 
     // Add event s for notify and download QR code buttons
     document.querySelectorAll('.notify-btn').forEach(button => {
