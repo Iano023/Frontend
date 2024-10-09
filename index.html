@@ -10,11 +10,10 @@
   <style>
     .table td {
       vertical-align: middle;
-      /* Vertically align content in the table cells */
     }
+
     .table img {
       border-radius: 5px;
-      /* Add some styling to images if needed */
     }
   </style>
 </head>
@@ -23,10 +22,10 @@
 
   <div id="container" style="display: flex;">
     <div id="form" style="padding-right: 5rem; display: inline;">
-      <label>Plate number</label>
+      <label>Franchise</label>
       <input type="text" name="plate" id="plate" required>
 
-      <label>Driver Name</label>
+      <label>Owner Name</label>
       <input type="text" name="driver" id="driver" required>
 
       <label>Barangay</label>
@@ -70,9 +69,35 @@
     </div>
   </div>
 
+  <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
+  <!-- Firebase App (core SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+
+  <!-- Firebase Storage SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-storage.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    // Your web app's Firebase configuration (replace with your actual config values)
+    var firebaseConfig = {
+      apiKey: 'AIzaSyBHyvNE9jtyZyVZTnyXo-s8YFWrzId7tR0',
+      appId: '1:174151480112:web:ff9b1de8c6c124a12e8ef5',
+      messagingSenderId: '174151480112',
+      projectId: 'signup-1e8a0',
+      authDomain: 'signup-1e8a0.firebaseapp.com',
+      storageBucket: 'signup-1e8a0.appspot.com',
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+  </script>
+
   <ul id="content"></ul>
+
+  
   <script src="index.js"></script>
 </body>
 
