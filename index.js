@@ -55,7 +55,7 @@ submit.addEventListener("click", () => {
     }
 
     // Send form data to the server
-    fetch("http://localhost:4500/api/list", {
+    fetch("https://triqride.onrender.com/api/list", {
         method: "POST",
         body: formData, // Use FormData object as the body
     })
@@ -82,7 +82,7 @@ window.addEventListener('load', () => {
 
 // Fetch and display all users
 function getUsers() {
-    fetch('http://localhost:4500/api/list/', { mode: 'cors' })
+    fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
             displayUsers(data);
@@ -147,7 +147,7 @@ function displayUsers(data) {
 searchButton.addEventListener('click', () => {
     const query = searchInput.value.toLowerCase();
     if (query) {
-        fetch('http://localhost:4500/api/list/', { mode: 'cors' })
+        fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
             .then(response => response.json())
             .then(data => {
                 let filteredData = data.filter(member =>
@@ -169,7 +169,7 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`http://localhost:4500/api/list/${id}`)
+    fetch(`https://triqride.onrender.com/api/list/${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
@@ -196,7 +196,7 @@ function sendNotification(id) {
                 serverDate: formattedDate
             };
 
-            return fetch("http://localhost:4500/sendnotification", {
+            return fetch("https://triqride.onrender.com/sendnotification", {
                 method: "POST",
                 body: JSON.stringify(notificationData),
                 headers: {
@@ -220,7 +220,7 @@ function sendNotification(id) {
 
 // Function to generate and display the QR code
 function generateQRCode(id) {
-    fetch(`http://localhost:4500/api/qr/${id}`)
+    fetch(`https://triqride.onrender.com/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
@@ -246,7 +246,7 @@ function deleteMember(id) {
     if (confirm("Are you sure you want to delete this member?")) {
         let formData = { id };
 
-        fetch(`http://localhost:4500/api/list/`, {
+        fetch(`https://triqride.onrender.com/api/list/`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
