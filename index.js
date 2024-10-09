@@ -8,31 +8,20 @@ const imagePreview = document.querySelector("#imagePreview");
 // Handle image file input change event
 imageUpload.addEventListener("change", (event) => {
     const file = event.target.files[0];
-    const maxSizeMB = 5; // Max size set to 5MB
-    const allowedFileTypes = ['image/jpeg', 'image/png']; // Allowed image formats
+    const maxSizeMB = 5; 
+    const allowedFileTypes = ['image/jpeg', 'image/png']; 
 
     if (file) {
-        // Check for file type
+       
         if (!allowedFileTypes.includes(file.type)) {
             alert('Please upload a valid image file (JPEG/PNG).');
-            imageUpload.value = ""; // Clear the input
-            imagePreview.src = ""; // Clear the preview
-            imagePreview.style.display = "none"; // Hide the preview
+            imageUpload.value = ""; 
+            imagePreview.src = ""; 
+            imagePreview.style.display = "none"; 
             return;
         }
-
-        // Check for file size
-        if (file.size > maxSizeMB * 1024 * 1024) {
-            alert(`File is too large. Maximum allowed size is ${maxSizeMB} MB.`);
-            imageUpload.value = ""; // Clear the input
-            imagePreview.src = ""; // Clear the preview
-            imagePreview.style.display = "none"; // Hide the preview
-            return;
-        }
-
         const reader = new FileReader();
         
-        // Set the image preview src once the file is loaded
         reader.onload = function(e) {
             imagePreview.src = e.target.result; // Set the source to the loaded file
             imagePreview.style.display = "block"; // Show the image preview
@@ -40,10 +29,7 @@ imageUpload.addEventListener("change", (event) => {
         
         // Read the file as a data URL (Base64)
         reader.readAsDataURL(file);
-    } else {
-        imagePreview.src = ""; // Clear the preview
-        imagePreview.style.display = "none"; // Hide the image
-    }
+    } 
 });
 
 // Handle form submission
@@ -56,6 +42,7 @@ submit.addEventListener("click", () => {
     // Get the uploaded file
     let imageUploadFile = imageUpload.files[0]; // Get the first uploaded file
 
+    
     // Create a FormData object
     let formData = new FormData();
     formData.append("plate", plate);
@@ -68,7 +55,7 @@ submit.addEventListener("click", () => {
     }
 
     // Send form data to the server
-    fetch("https://triqride.onrender.com/api/list", {
+    fetch("http://localhost:4500/api/list", {
         method: "POST",
         body: formData, // Use FormData object as the body
     })
@@ -95,7 +82,7 @@ window.addEventListener('load', () => {
 
 // Fetch and display all users
 function getUsers() {
-    fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
+    fetch('http://localhost:4500/api/list/', { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
             displayUsers(data);
@@ -109,8 +96,8 @@ function getUsers() {
 function displayUsers(data) {
     let html = "";  
     data.forEach(element => {
-        // Construct the correct image URL
-        const imageSrc = element.image ? `https://triqride.onrender.com${element.image}` : 'placeholder.jpg'; // Use backend URL
+        // Use the correct image URL from Firebase Storage if available, otherwise use a placeholder
+        const imageSrc = element.image ? element.image : 'placeholder.jpg';
 
         html += `
             <tr>
@@ -160,7 +147,7 @@ function displayUsers(data) {
 searchButton.addEventListener('click', () => {
     const query = searchInput.value.toLowerCase();
     if (query) {
-        fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
+        fetch('http://localhost:4500/api/list/', { mode: 'cors' })
             .then(response => response.json())
             .then(data => {
                 let filteredData = data.filter(member =>
@@ -182,7 +169,7 @@ searchButton.addEventListener('click', () => {
 
 // Function to send notification
 function sendNotification(id) {
-    fetch(`https://triqride.onrender.com/api/list/${id}`)
+    fetch(`http://localhost:4500/api/list/${id}`)
         .then(response => response.json())
         .then(user => {
             if (!user || !user.fcm_token) {
@@ -209,7 +196,7 @@ function sendNotification(id) {
                 serverDate: formattedDate
             };
 
-            return fetch("https://triqride.onrender.com/sendnotification", {
+            return fetch("http://localhost:4500/sendnotification", {
                 method: "POST",
                 body: JSON.stringify(notificationData),
                 headers: {
@@ -233,7 +220,7 @@ function sendNotification(id) {
 
 // Function to generate and display the QR code
 function generateQRCode(id) {
-    fetch(`https://triqride.onrender.com/api/qr/${id}`)
+    fetch(`http://localhost:4500/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
@@ -259,7 +246,7 @@ function deleteMember(id) {
     if (confirm("Are you sure you want to delete this member?")) {
         let formData = { id };
 
-        fetch(`https://triqride.onrender.com/api/list/`, {
+        fetch(`http://localhost:4500/api/list/`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
