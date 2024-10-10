@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriQRide Candelaria - October Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            width: 60px;
+            height: 100vh;
+            background-color: #e74c3c;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .option-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            background-color: #e74c3c;
+            font-size: 30px;
+        }
+        .sidebar .side-content {
+            background-color: #eeeeee;
+            width: 100%;
+            height: 100%;
+        }
+        .main-content {
+            margin-left: 60px;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 4px 2px -2px gray;
+        }
+        .admin-section {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+        .admin-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        .admin-section .admin-name {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .admin-section .admin-title {
+            font-size: 12px;
+            color: gray;
+        }
+        .table-container {
+            margin-top: 30px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .next-page-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        .next-page-button::before {
+            content: '→';
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="option-icon">⋮</div>
+        <div class="side-content"></div>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h2>October Report</h2>
+            <div class="admin-section">
+                <div>
+                    <span class="admin-name">Juan Dela Cruz</span><br>
+                    <span class="admin-title">Admin</span>
+                </div>
+                <img src="https://via.placeholder.com/40" alt="Profile Icon">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Owner</th>
+                        <th>Franchise Number</th>
+                        <th>Date and Time</th>
+                        <th>Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Jerry Mattedi</td>
+                        <td>1234</td>
+                        <td>19 October, 2024 : 10:10 AM</td>
+                        <td>Nanaksak</td>
+                    </tr>
+                    <tr>
+                        <td>Elianora Vasilov</td>
+                        <td>5423</td>
+                        <td>18 October, 2024 : 3:12 PM</td>
+                        <td>Subang mamingil</td>
+                    </tr>
+                    <tr>
+                        <td>Alvis Daen</td>
+                        <td>4232</td>
+                        <td>17 October, 2024 : 2:15 PM</td>
+                        <td>Minura ako</td>
+                    </tr>
+                    <tr>
+                        <td>Lissa Shipsey</td>
+                        <td>2122</td>
+                        <td>23 October, 2024 : 1:15 PM</td>
+                        <td>Nagalulu</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="seminarlist.html"><button class="next-page-button"></button></a>
+    </div>
+</body>
+</html>
