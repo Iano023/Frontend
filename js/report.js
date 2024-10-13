@@ -91,3 +91,25 @@ function displayReports(reports) {
         tableBody.appendChild(row);
     });
 }    
+
+document.getElementById('searchBar').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase(); // Get the search term and convert to lower case
+    const rows = document.querySelectorAll('#driverlistData tr'); // Get all rows in the table body
+
+    rows.forEach(row => {
+        const cells = row.getElementsByTagName('td'); // Get all cells in the row
+        let match = false;
+
+        // Check the "Franchise Number" column, which is typically the second column (index 1)
+        if (cells.length > 1 && cells[1].textContent.toLowerCase().includes(searchTerm)) {
+            match = true; // Match found in the Franchise Number column
+        }
+
+        // Show or hide the row based on whether a match was found
+        if (match) {
+            row.style.display = ''; // Show the row
+        } else {
+            row.style.display = 'none'; // Hide the row
+        }
+    });
+});
