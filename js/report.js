@@ -55,12 +55,19 @@ function logout() {
     window.location.href = 'index.html';
 }
 
-// Fetch reports from the backend API and display them in the table
-function fetchReports() {
-    fetch('https://triqride.onrender.com/api/reports') // Adjust the API URL accordingly
+// Fetch reports with optional search query
+function fetchReports(searchTerm = '') {
+    const url = new URL('https://triqride.onrender.com/api/reports');
+    
+    // Append search query to the URL if a search term is provided
+    if (searchTerm) {
+        url.searchParams.append('search', searchTerm);
+    }
+    
+    fetch(url)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
+                throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
         })
@@ -71,6 +78,12 @@ function fetchReports() {
             console.error('Error fetching reports:', error);
         });
 }
+
+// Event listener for the search bar
+document.getElementById('searchBar').addEventListener('input', function() {
+    const searchTerm = this.value;
+    fetchReports(searchTerm);  // Fetch reports based on search term
+});
 
 // Display fetched reports in the table
 function displayReports(reports) {
@@ -91,25 +104,3 @@ function displayReports(reports) {
         tableBody.appendChild(row);
     });
 }    
-
-document.getElementById('searchBar').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase(); // Get the search term and convert to lower case
-    const rows = document.querySelectorAll('#driverlistData tr'); // Get all rows in the table body
-
-    rows.forEach(row => {
-        const cells = row.getElementsByTagName('td'); // Get all cells in the row
-        let match = false;
-
-        // Check the "Franchise Number" column, which is typically the second column (index 1)
-        if (cells.length > 1 && cells[1].textContent.toLowerCase().includes(searchTerm)) {
-            match = true; // Match found in the Franchise Number column
-        }
-
-        // Show or hide the row based on whether a match was found
-        if (match) {
-            row.style.display = ''; // Show the row
-        } else {
-            row.style.display = 'none'; // Hide the row
-        }
-    });
-});
