@@ -19,7 +19,14 @@ document.getElementById('create-account-form').addEventListener('submit', async 
         if (response.ok) {
             messageElem.style.color = 'green';
             messageElem.innerText = 'Account created successfully!';
+
+            // Show alert
+            alert('Account created successfully!');
+
+            // Redirect to the login page after alert
+            window.location.href = '/Login/Login.html'; // Adjust the path if necessary
         } else {
+            messageElem.style.color = 'red';
             messageElem.innerText = data.message || 'Error creating account';
         }
     } catch (error) {
