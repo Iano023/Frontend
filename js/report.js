@@ -21,9 +21,60 @@ function setReportTitle() {
     reportTitleElement.textContent = `${currentMonth} Report - ${currentYear}`;
 }
 
+// Fetch all reports from the reportlist table
+function fetchReports(searchTerm = '') {
+    const url = new URL('https://triqride.onrender.com/api/reports');
+
+    // Append search query to the URL if a search term is provided
+    if (searchTerm) {
+        url.searchParams.append('search', searchTerm);
+    }
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayReports(data);
+        })
+        .catch(error => {
+            console.error('Error fetching reports:', error);
+        });
+}
+
+// Display fetched reports in the table
+function displayReports(reports) {
+    const tableBody = document.querySelector('tbody');
+    tableBody.innerHTML = ''; // Clear any existing rows
+
+    reports.forEach(report => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
+            <td>${report.Plate_number}</td> <!-- Plate number from DB -->
+            <td>${report.ratings}</td>       <!-- Ratings from DB -->
+            <td>${new Date(report.report_datetime).toLocaleString()}</td>  <!-- Date and Time of report -->
+            <td>${report.Violations}</td>     <!-- Violations from DB -->
+        `;
+
+        tableBody.appendChild(row);
+    });
+}    
+
+// Event listener for the search bar
+document.getElementById('searchBar').addEventListener('input', function() {
+    const searchTerm = this.value;  // Get the value from the search bar
+    fetchReports(searchTerm);  // Fetch reports based on search term
+});
+
+// Call functions when the page loads
 window.addEventListener('load', () => {
     displayAdminName();  
-    fetchReports(); // Fetch and display reports when the page loads
+    fetchReports(); // Fetch and display all reports when the page loads
     setReportTitle();
 });
 
@@ -54,53 +105,3 @@ function toggleSidebar() {
 function logout() {
     window.location.href = 'index.html';
 }
-
-// Fetch reports with optional search query
-function fetchReports(searchTerm = '') {
-    const url = new URL('https://triqride.onrender.com/api/reports');
-    
-    // Append search query to the URL if a search term is provided
-    if (searchTerm) {
-        url.searchParams.append('search', searchTerm);
-    }
-    
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            displayReports(data);
-        })
-        .catch(error => {
-            console.error('Error fetching reports:', error);
-        });
-}
-
-// Event listener for the search bar
-document.getElementById('searchBar').addEventListener('input', function() {
-    const searchTerm = this.value;
-    fetchReports(searchTerm);  // Fetch reports based on search term
-});
-
-// Display fetched reports in the table
-function displayReports(reports) {
-    const tableBody = document.querySelector('tbody');
-    tableBody.innerHTML = ''; // Clear any existing rows
-
-    reports.forEach(report => {
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
-            <td>${report.Plate_number}</td> <!-- Plate number from DB -->
-            <td>${report.ratings}</td>       <!-- Ratings from DB -->
-            <td>${new Date(report.report_datetime).toLocaleString()}</td>  <!-- Date and Time of report -->
-            <td>${report.Violations}</td>     <!-- Violations from DB -->
-        `;
-
-        tableBody.appendChild(row);
-    });
-}    
