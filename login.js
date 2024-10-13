@@ -24,7 +24,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
             localStorage.setItem('fullname', data.fullname);
 
             // Redirect the user to the dashboard page
-            window.location.href = '/test/testdriver/list.html';
+            window.location.href = '/MonthReport/report.html';
         } else {
             messageElem.style.color = 'red';
             messageElem.innerText = data.message; // 'Invalid username or password'
