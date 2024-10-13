@@ -24,7 +24,7 @@ document.getElementById('create-account-form').addEventListener('submit', async 
             alert('Account created successfully!');
 
             // Redirect to the login page after alert
-            window.location.href = '/Login/Login.html'; // Adjust the path if necessary
+            window.location.href = '/Login.html'; // Adjust the path if necessary
         } else {
             messageElem.style.color = 'red';
             messageElem.innerText = data.message || 'Error creating account';
