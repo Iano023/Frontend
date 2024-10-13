@@ -9,10 +9,11 @@ function displayAdminName() {
     }
 }
 
-
 window.addEventListener('load', () => {
     displayAdminName();  
+    fetchReports(); // Fetch and display reports when the page loads
 });
+
 function setReportTitle() {
     const reportTitleElement = document.getElementById('report-title');
     const date = new Date();
@@ -57,4 +58,41 @@ function toggleSidebar() {
         sidebarOptions.classList.add('open');
         sidebarOptions.classList.remove('hidden');
     }
+}
+
+// Fetch reports from the backend and display them
+function fetchReports() {
+    fetch('https://triqride.onrender.com/api/reports') // Update this URL to match your endpoint
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayReports(data);
+        })
+        .catch(error => {
+            console.error('Error fetching reports:', error);
+        });
+}
+
+// Display the fetched reports in the table
+function displayReports(reports) {
+    const tableBody = document.querySelector('tbody');
+    tableBody.innerHTML = ''; // Clear the existing rows
+
+    reports.forEach(report => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${report.owner}</td>
+            <td>${report.franchiseNumber}</td>
+            <td>${report.ratings}</td>
+            <td>${new Date(report.report_datetime).toLocaleString()}</td>
+            <td>${report.violations}</td>
+        `;
+
+        tableBody.appendChild(row);
+    });
 }
