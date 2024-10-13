@@ -5,7 +5,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const password = document.getElementById('login-password').value;
 
     try {
-        const response = await fetch('http://localhost:4500/login', {
+        const response = await fetch('https://triqride.onrender.com/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
