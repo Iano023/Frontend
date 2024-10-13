@@ -5,7 +5,7 @@ document.getElementById('create-account-form').addEventListener('submit', async 
     const password = document.getElementById('register-password').value;
 
     try {
-        const response = await fetch('https://triqride.onrender.com/register', {
+        const response = await fetch('http://localhost:4500/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
