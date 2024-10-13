@@ -54,7 +54,7 @@ document.querySelector('#submit-form').addEventListener('submit', (e) => {
     formData.append('brgy', document.querySelector('#brgy').value);
     formData.append('image', imageUpload.files[0]); // Use imageUpload directly
 
-    fetch('http://localhost:4500/api/list', {
+    fetch('https://triqride.onrender.com/api/list', {
         method: 'POST',
         body: formData,
     })
@@ -75,7 +75,7 @@ document.querySelector('#submit-form').addEventListener('submit', (e) => {
 
 // Fetch and display all users
 function getUsers() {
-    fetch('http://localhost:4500/api/list/', { mode: 'cors' })
+    fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
             displayUsers(data);
@@ -127,7 +127,7 @@ function displayUsers(data) {
 
 // Function to generate and download the QR code
 function generateQRCode(id) {
-    fetch(`http://localhost:4500/api/qr/${id}`)
+    fetch(`https://triqride.onrender.com/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
