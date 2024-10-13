@@ -1,47 +1,38 @@
+// Display the logged-in admin's name
 function displayAdminName() {
-    const fullname = localStorage.getItem('fullname'); // Retrieve fullname from localStorage
+    const fullname = localStorage.getItem('fullname');
     const adminNameElement = document.getElementById('adminName');
 
     if (fullname) {
-        adminNameElement.textContent = fullname; // Display fullname
+        adminNameElement.textContent = fullname;
     } else {
         adminNameElement.textContent = 'Admin'; // Default fallback
     }
 }
 
-window.addEventListener('load', () => {
-    displayAdminName();  
-    fetchReports(); // Fetch and display reports when the page loads
-});
-
+// Set the report title (Month-Year format)
 function setReportTitle() {
     const reportTitleElement = document.getElementById('report-title');
     const date = new Date();
-    const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June', 
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const currentMonth = monthNames[date.getMonth()];
     const currentYear = date.getFullYear();
     
-    // Set the title to show the current month and year
     reportTitleElement.textContent = `${currentMonth} Report - ${currentYear}`;
 }
 
-// Call the function when the page loads
-setReportTitle();
+window.addEventListener('load', () => {
+    displayAdminName();  
+    fetchReports(); // Fetch and display reports when the page loads
+    setReportTitle();
+});
 
-function logout() {
-    window.location.href = 'index.html'; 
-}
-
-// Toggle sidebar visibility
+// Function to toggle sidebar visibility
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const sidebarOptions = document.getElementById('sidebar-options');
 
-    // Toggle the width of the sidebar
     if (sidebar.classList.contains('expanded')) {
         sidebar.classList.remove('expanded');
         mainContent.classList.remove('shifted');
@@ -50,7 +41,6 @@ function toggleSidebar() {
         mainContent.classList.add('shifted');
     }
 
-    // Toggle the dropdown menu
     if (sidebarOptions.classList.contains('open')) {
         sidebarOptions.classList.remove('open');
         sidebarOptions.classList.add('hidden');
@@ -60,12 +50,17 @@ function toggleSidebar() {
     }
 }
 
-// Fetch reports from the backend and display them
+// Logout function
+function logout() {
+    window.location.href = 'index.html';
+}
+
+// Fetch reports from the backend API and display them in the table
 function fetchReports() {
-    fetch('https://triqride.onrender.com/api/reports') // Update this URL to match your endpoint
+    fetch('https://triqride.onrender.com/api/reports') // Adjust the API URL accordingly
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
+                throw new Error('Network response was not ok: ' + response.statusText);
             }
             return response.json();
         })
@@ -77,22 +72,22 @@ function fetchReports() {
         });
 }
 
-// Display the fetched reports in the table
+// Display fetched reports in the table
 function displayReports(reports) {
     const tableBody = document.querySelector('tbody');
-    tableBody.innerHTML = ''; // Clear the existing rows
+    tableBody.innerHTML = ''; // Clear any existing rows
 
     reports.forEach(report => {
         const row = document.createElement('tr');
 
         row.innerHTML = `
-            <td>${report.owner}</td>
-            <td>${report.franchiseNumber}</td>
-            <td>${report.ratings}</td>
-            <td>${new Date(report.report_datetime).toLocaleString()}</td>
-            <td>${report.violations}</td>
+            <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
+            <td>${report.Plate_number}</td> <!-- Plate number from DB -->
+            <td>${report.ratings}</td>       <!-- Ratings from DB -->
+            <td>${new Date(report.report_datetime).toLocaleString()}</td>  <!-- Date and Time of report -->
+            <td>${report.Violations}</td>     <!-- Violations from DB -->
         `;
 
         tableBody.appendChild(row);
     });
-}
+}    
