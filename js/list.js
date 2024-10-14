@@ -1,5 +1,5 @@
 let currentPage = 1;
-const pageSize = 10;
+const pageSize = 5;
 let fullDriverList = [];
 
 const submit = document.querySelector('#submit');
