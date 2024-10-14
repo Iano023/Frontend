@@ -95,6 +95,11 @@ function getUsers() {
         });
 }
 
+document.getElementById('searchBar').addEventListener('input', function() {
+    const searchTerm = this.value;  // Get the value from the search bar
+    fetchReports(searchTerm);  // Fetch reports based on search term
+});
+
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
