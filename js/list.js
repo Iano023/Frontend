@@ -1,26 +1,30 @@
 let currentPage = 1;
-const pageSize = 5;
+const pageSize = 10;
 let fullDriverList = [];
 
 const submit = document.querySelector('#submit');
 const imageUpload = document.querySelector("#imageUpload");
 const imagePreview = document.querySelector("#imagePreview");
 
+// Display the logged-in user's fullname
 function displayAdminName() {
-    const fullname = localStorage.getItem('fullname');
+    const fullname = localStorage.getItem('fullname'); // Retrieve fullname from localStorage
     const adminNameElement = document.getElementById('adminName');
+
     if (fullname) {
-        adminNameElement.textContent = fullname;
+        adminNameElement.textContent = fullname; // Display fullname
     } else {
-        adminNameElement.textContent = 'Admin';
+        adminNameElement.textContent = 'Admin'; // Default fallback
     }
 }
 
+
 window.addEventListener('load', () => {
-    displayAdminName();
-    getUsers();
+    displayAdminName();  
+    getUsers();  
 });
 
+// Handle image file input change event
 imageUpload.addEventListener("change", (event) => {
     const file = event.target.files[0];
     const allowedFileTypes = ['image/jpeg', 'image/png'];
@@ -34,21 +38,25 @@ imageUpload.addEventListener("change", (event) => {
             return;
         }
         const reader = new FileReader();
-        reader.onload = function (e) {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = "block";
-        };
+
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result; // Set the source to the loaded file
+            imagePreview.style.display = "block"; // Show the image preview
+        }
+
         reader.readAsDataURL(file);
     }
 });
 
+// Handle form submission
 document.querySelector('#submit-form').addEventListener('submit', (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append('plate', document.querySelector('#plate').value);
     formData.append('driver', document.querySelector('#driver').value);
     formData.append('brgy', document.querySelector('#brgy').value);
-    formData.append('image', imageUpload.files[0]);
+    formData.append('image', imageUpload.files[0]); // Use imageUpload directly
 
     fetch('https://triqride.onrender.com/api/list', {
         method: 'POST',
@@ -69,6 +77,7 @@ document.querySelector('#submit-form').addEventListener('submit', (e) => {
         });
 });
 
+// Fetch and display all users
 function getUsers() {
     fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
         .then(response => response.json())
@@ -101,10 +110,12 @@ function displayPaginatedUsers() {
     updatePaginationControls();
 }
 
+// Display user data in a table
 function displayUsers(data) {
     let html = "";
     data.forEach(element => {
-        const imageSrc = element.Image ? element.Image : 'placeholder.jpg';
+        const imageSrc = element.Image ? element.Image : 'placeholder.jpg'; // Default image
+
         html += `
             <tr>
                 <td><strong>${element.id}.</strong></td>
@@ -121,6 +132,7 @@ function displayUsers(data) {
     });
     document.querySelector('tbody').innerHTML = html;
 
+    // Add event listeners for QR code download buttons
     document.querySelectorAll('.download-qr-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const id = event.target.closest('.download-qr-btn').getAttribute('data-id');
@@ -148,16 +160,17 @@ document.getElementById('nextPage').addEventListener('click', () => {
         currentPage++;
         displayPaginatedUsers();
     }
-});
+});    
 
+// Function to generate and download the QR code
 function generateQRCode(id) {
     fetch(`https://triqride.onrender.com/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
                 const link = document.createElement('a');
-                link.href = data.qrCode;
-                link.download = `qr_code_${id}.png`;
+                link.href = data.qrCode; // Use the QR code URL
+                link.download = `qr_code_${id}.png`; // Set the download filename
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -191,6 +204,7 @@ function toggleSidebar() {
     const mainContent = document.getElementById('main-content');
     const sidebarOptions = document.getElementById('sidebar-options');
 
+    // Toggle the width of the sidebar
     if (sidebar.classList.contains('expanded')) {
         sidebar.classList.remove('expanded');
         mainContent.classList.remove('shifted');
@@ -199,6 +213,7 @@ function toggleSidebar() {
         mainContent.classList.add('shifted');
     }
 
+    // Toggle the dropdown menu
     if (sidebarOptions.classList.contains('open')) {
         sidebarOptions.classList.remove('open');
         sidebarOptions.classList.add('hidden');
