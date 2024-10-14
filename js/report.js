@@ -54,7 +54,7 @@ function displayReports(reports) {
         const row = document.createElement('tr');
 
         row.innerHTML = `
-            <td><strong>${report.id}.</strong></td> 
+            <td><strong>${report.id}.</strong></td>
             <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
             <td>${report.Plate_number}</td> <!-- Plate number from DB -->
             <td>${report.ratings}</td>       <!-- Ratings from DB -->
