@@ -103,7 +103,7 @@ function displayUsers(data) {
 
         html += `
             <tr>
-                <td>${element.id}.</td>
+                <td><strong>${element.id}.</strong></td>
                 <td><img src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" /></td>
                 <td>${element.Driver_name}</td>
                 <td>${element.Plate_number}</td>
