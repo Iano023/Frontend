@@ -31,33 +31,26 @@
         </div>
 
         <div class="table-container">
-            <th colspan="4">
-                <div style="text-align: right; margin-bottom: 20px;">
+            <div style="text-align: right; margin-bottom: 20px;">
                 <input type="text" id="searchBar" placeholder="Search for Franchise" style="width: 15%; padding: 10px;" />
             </div>
-            </th>   
-            <table>
+        
+            <table id="report-table">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>Owner</th>
-                        <th>Franchise</th>
-                        <th>Ratings</th>
-                        <th>Date and Time</th>
+                        <th>ID</th>
+                        <th>Plate Number</th>
+                        <th>Driver Name</th>
                         <th>Violations</th>
+                        <th>Report Date/Time</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                <tbody id="reportlistData">
                 </tbody>
             </table>
         </div>
     </div>
+
     <script src="js/report.js"></script>
 </body>
 </html>
