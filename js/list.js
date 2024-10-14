@@ -1,26 +1,26 @@
+let currentPage = 1;
+const pageSize = 10;
+let fullDriverList = [];
+
 const submit = document.querySelector('#submit');
 const imageUpload = document.querySelector("#imageUpload");
 const imagePreview = document.querySelector("#imagePreview");
 
-// Display the logged-in user's fullname
 function displayAdminName() {
-    const fullname = localStorage.getItem('fullname'); // Retrieve fullname from localStorage
+    const fullname = localStorage.getItem('fullname');
     const adminNameElement = document.getElementById('adminName');
-
     if (fullname) {
-        adminNameElement.textContent = fullname; // Display fullname
+        adminNameElement.textContent = fullname;
     } else {
-        adminNameElement.textContent = 'Admin'; // Default fallback
+        adminNameElement.textContent = 'Admin';
     }
 }
 
-
 window.addEventListener('load', () => {
-    displayAdminName();  
-    getUsers();  
+    displayAdminName();
+    getUsers();
 });
 
-// Handle image file input change event
 imageUpload.addEventListener("change", (event) => {
     const file = event.target.files[0];
     const allowedFileTypes = ['image/jpeg', 'image/png'];
@@ -34,25 +34,21 @@ imageUpload.addEventListener("change", (event) => {
             return;
         }
         const reader = new FileReader();
-
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result; // Set the source to the loaded file
-            imagePreview.style.display = "block"; // Show the image preview
-        }
-
+        reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = "block";
+        };
         reader.readAsDataURL(file);
     }
 });
 
-// Handle form submission
 document.querySelector('#submit-form').addEventListener('submit', (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append('plate', document.querySelector('#plate').value);
     formData.append('driver', document.querySelector('#driver').value);
     formData.append('brgy', document.querySelector('#brgy').value);
-    formData.append('image', imageUpload.files[0]); // Use imageUpload directly
+    formData.append('image', imageUpload.files[0]);
 
     fetch('https://triqride.onrender.com/api/list', {
         method: 'POST',
@@ -73,20 +69,22 @@ document.querySelector('#submit-form').addEventListener('submit', (e) => {
         });
 });
 
-// Fetch and display all users
 function getUsers() {
     fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
-            displayUsers(data);
+            fullDriverList = data;  // Store the full list of users
+            displayPaginatedUsers();  // Display the initial page of users
+
+            // Add event listener for the image modal
             document.querySelector('tbody').addEventListener('click', (event) => {
                 if (event.target.tagName === 'IMG') {
-                    const imgSrc = event.target.src; // Get the image source
+                    const imgSrc = event.target.src;  // Get the image source
                     const modalImage = document.querySelector('#modalImage');
-                    modalImage.src = imgSrc; // Set the modal image source
+                    modalImage.src = imgSrc;  // Set the modal image source
 
                     const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-                    modal.show(); // Show the modal
+                    modal.show();  // Show the modal
                 }
             });
         })
@@ -95,13 +93,18 @@ function getUsers() {
         });
 }
 
+function displayPaginatedUsers() {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, fullDriverList.length);
+    const paginatedData = fullDriverList.slice(startIndex, endIndex);
+    displayUsers(paginatedData);
+    updatePaginationControls();
+}
 
-// Display user data in a table
 function displayUsers(data) {
     let html = "";
     data.forEach(element => {
-        const imageSrc = element.Image ? element.Image : 'placeholder.jpg'; // Default image
-
+        const imageSrc = element.Image ? element.Image : 'placeholder.jpg';
         html += `
             <tr>
                 <td><strong>${element.id}.</strong></td>
@@ -118,7 +121,6 @@ function displayUsers(data) {
     });
     document.querySelector('tbody').innerHTML = html;
 
-    // Add event listeners for QR code download buttons
     document.querySelectorAll('.download-qr-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const id = event.target.closest('.download-qr-btn').getAttribute('data-id');
@@ -127,15 +129,35 @@ function displayUsers(data) {
     });
 }
 
-// Function to generate and download the QR code
+function updatePaginationControls() {
+    const pageInfo = document.getElementById('pageInfo');
+    pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(fullDriverList.length / pageSize)}`;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === Math.ceil(fullDriverList.length / pageSize);
+}
+
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayPaginatedUsers();
+    }
+});
+
+document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < Math.ceil(fullDriverList.length / pageSize)) {
+        currentPage++;
+        displayPaginatedUsers();
+    }
+});
+
 function generateQRCode(id) {
     fetch(`https://triqride.onrender.com/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
                 const link = document.createElement('a');
-                link.href = data.qrCode; // Use the QR code URL
-                link.download = `qr_code_${id}.png`; // Set the download filename
+                link.href = data.qrCode;
+                link.download = `qr_code_${id}.png`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -150,14 +172,14 @@ function generateQRCode(id) {
         });
 }
 
-document.getElementById('searchBar').addEventListener('keyup', function() {
-    const searchTerm = this.value; // Get the search term
-
-    // Make a request to the backend to search for drivers
+document.getElementById('searchBar').addEventListener('keyup', function () {
+    const searchTerm = this.value;
     fetch(`https://triqride.onrender.com/api/drivers?search=${encodeURIComponent(searchTerm)}`, { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
-            displayUsers(data); // Update the table with the search results
+            fullDriverList = data;  // Update the full list with search results
+            currentPage = 1;  // Reset to first page for search results
+            displayPaginatedUsers();  // Display the search results
         })
         .catch(error => {
             console.error('Error fetching search results:', error);
@@ -169,7 +191,6 @@ function toggleSidebar() {
     const mainContent = document.getElementById('main-content');
     const sidebarOptions = document.getElementById('sidebar-options');
 
-    // Toggle the width of the sidebar
     if (sidebar.classList.contains('expanded')) {
         sidebar.classList.remove('expanded');
         mainContent.classList.remove('shifted');
@@ -178,7 +199,6 @@ function toggleSidebar() {
         mainContent.classList.add('shifted');
     }
 
-    // Toggle the dropdown menu
     if (sidebarOptions.classList.contains('open')) {
         sidebarOptions.classList.remove('open');
         sidebarOptions.classList.add('hidden');
