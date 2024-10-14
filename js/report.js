@@ -1,3 +1,7 @@
+let currentPage = 1;         
+const pageSize = 14;          
+let fullReportList = [];
+
 // Display the logged-in admin's name
 function displayAdminName() {
     const fullname = localStorage.getItem('fullname');
@@ -39,10 +43,22 @@ function fetchReports(searchTerm = '') {
         })
         .then(data => {
             displayReports(data);
+            fullReportList = data;
+            displayPaginatedReports();
+
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
         });
+}
+
+// Display paginated reports
+function displayPaginatedReports() {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, fullReportList.length);
+    const paginatedData = fullReportList.slice(startIndex, endIndex);
+    displayReports(paginatedData);
+    updatePaginationControls();
 }
 
 // Display fetched reports in the table
@@ -66,6 +82,32 @@ function displayReports(reports) {
     });
 }    
 
+// Update the pagination controls
+function updatePaginationControls() {
+    const pageInfo = document.getElementById('pageInfo');
+    pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(fullReportList.length / pageSize)}`;
+
+    // Disable/enable pagination buttons based on current page
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === Math.ceil(fullReportList.length / pageSize);
+}
+
+// Event listener for pagination buttons
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayPaginatedReports();
+    }
+});
+
+document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < Math.ceil(fullReportList.length / pageSize)) {
+        currentPage++;
+        displayPaginatedReports();
+    }
+});
+
+
 // Event listener for the search bar using 'keyup'
 document.getElementById('searchBar').addEventListener('keyup', function() {
     const searchTerm = this.value.toLowerCase(); // Get the search term from the input field
@@ -75,6 +117,10 @@ document.getElementById('searchBar').addEventListener('keyup', function() {
         .then(response => response.json())
         .then(data => {
             displayReports(data); // Display the results in the table
+            fullReportList = data;  // Store search results in fullReportList
+            currentPage = 1;  // Reset to first page for search results
+            displayPaginatedReports();  // Display the search results
+            
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
