@@ -66,10 +66,19 @@ function displayReports(reports) {
     });
 }    
 
-// Event listener for the search bar
-document.getElementById('searchBar').addEventListener('input', function() {
-    const searchTerm = this.value;  // Get the value from the search bar
-    fetchReports(searchTerm);  // Fetch reports based on search term
+// Event listener for the search bar using 'keyup'
+document.getElementById('searchBar').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase(); // Get the search term from the input field
+
+    // Make the API call to search for reports using the search term
+    fetch(`https://triqride.onrender.com/api/reports?search=${encodeURIComponent(searchTerm)}`, { mode: 'cors' })
+        .then(response => response.json())
+        .then(data => {
+            displayReports(data); // Display the results in the table
+        })
+        .catch(error => {
+            console.error('Error fetching reports:', error);
+        });
 });
 
 // Call functions when the page loads
