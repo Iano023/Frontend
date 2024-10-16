@@ -61,9 +61,11 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th class="text-align">Image</th>
-                        <th class="text-center">Driver Profile</tg>
-                        <th class="text-end">QR Code</th>
+                        <th>Image</th>
+                        <th>Owner Name</th>
+                        <th>Franchise Number</th>
+                        <th>Barangay</th>
+                        <th>QR Code</th>
                     </tr>
                 </thead>
                 <tbody id="driverlistData"></tbody>
@@ -97,30 +99,3 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="profileModalLabel">Driver Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body d-flex align-items-start">
-                <!-- Image on the left -->
-                <div class="image-container" style="flex-shrink: 0; margin-right: 20px;">
-                    <img id="modalDriverImage" src="" alt="Driver Image" style="max-width: 150px; height: auto;" />
-                </div>
-                <!-- Information on the right -->
-                <div class="info-container">
-                    <p><strong>Owner Name:</strong> <span id="modalOwnerName"></span></p>
-                    <p><strong>Franchise Number:</strong> <span id="modalFranchiseNumber"></span></p>
-                    <p><strong>Barangay:</strong> <span id="modalBarangay"></span></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Driver List -->
-
-</html>
