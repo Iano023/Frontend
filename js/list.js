@@ -18,7 +18,6 @@ function displayAdminName() {
     }
 }
 
-
 window.addEventListener('load', () => {
     displayAdminName();  
     getUsers();  
@@ -116,7 +115,7 @@ function displayUsers(data) {
     data.forEach(element => {
         const imageSrc = element.Image ? element.Image : 'placeholder.jpg'; // Default image
 
-        html += 
+        html += `
             <tr>
                 <td><strong>${element.id}.</strong></td>
                 <td><img src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" /></td>
@@ -128,7 +127,7 @@ function displayUsers(data) {
                         <i class="fas fa-download"></i> Download QR
                     </button>
                 </td>
-            </tr>;
+            </tr>`;
     });
     document.querySelector('tbody').innerHTML = html;
 
@@ -143,7 +142,7 @@ function displayUsers(data) {
 
 function updatePaginationControls() {
     const pageInfo = document.getElementById('pageInfo');
-    pageInfo.textContent = Page ${currentPage} of ${Math.ceil(fullDriverList.length / pageSize)};
+    pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(fullDriverList.length / pageSize)}`;
     document.getElementById('prevPage').disabled = currentPage === 1;
     document.getElementById('nextPage').disabled = currentPage === Math.ceil(fullDriverList.length / pageSize);
 }
@@ -164,13 +163,13 @@ document.getElementById('nextPage').addEventListener('click', () => {
 
 // Function to generate and download the QR code
 function generateQRCode(id) {
-    fetch(https://triqride.onrender.com/api/qr/${id})
+    fetch(`https://triqride.onrender.com/api/qr/${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.qrCode) {
                 const link = document.createElement('a');
                 link.href = data.qrCode; // Use the QR code URL
-                link.download = qr_code_${id}.png; // Set the download filename
+                link.download = `qr_code_${id}.png`; // Set the download filename
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -187,7 +186,7 @@ function generateQRCode(id) {
 
 document.getElementById('searchBar').addEventListener('keyup', function () {
     const searchTerm = this.value;
-    fetch(https://triqride.onrender.com/api/drivers?search=${encodeURIComponent(searchTerm)}, { mode: 'cors' })
+    fetch(`https://triqride.onrender.com/api/drivers?search=${encodeURIComponent(searchTerm)}`, { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
             fullDriverList = data;  // Update the full list with search results
@@ -221,4 +220,4 @@ function toggleSidebar() {
         sidebarOptions.classList.add('open');
         sidebarOptions.classList.remove('hidden');
     }
-} 
+}
