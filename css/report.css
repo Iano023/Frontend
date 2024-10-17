@@ -143,3 +143,108 @@ table th {
 .hidden {
     display: none;
 }
+
+#report-title {
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+/* Arrow next to the title */
+#report-title:after {
+    content: ' ▼'; /* Adds the arrow after the text */
+    font-size: 18px;
+    color: #666;
+    padding-left: 5px;
+}
+
+/* Custom dropdown styling */
+.custom-dropdown {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    width: 150px;
+    margin-top: 10px;
+    z-index: 1000;
+    display: none; /* Hidden by default */
+}
+
+.custom-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-dropdown ul li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    transition: background-color 0.2s ease;
+}
+
+.custom-dropdown ul li:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show the dropdown when hovering over the title */
+#report-title:hover + .custom-dropdown {
+    display: block;
+}
+
+/* Hide the last border for the last element */
+.custom-dropdown ul li:last-child {
+    border-bottom: none;
+}
+
+.dropbtn {
+    font-size: 24px; /* Font size for report title */
+    cursor: pointer; /* Cursor indicates clickable */
+}
+
+/* Dropdown Styles */
+.dropdown {
+    position: relative; /* Position for dropdown content */
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none; /* Initially hidden */
+    position: absolute; /* Position absolute for dropdown */
+    background-color: #f9f9f9; /* Light background for dropdown */
+    min-width: 160px; /* Minimum width of dropdown */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Shadow effect */
+    z-index: 1; /* Stack on top of other elements */
+}
+
+/* Dropdown Item Styles */
+.dropdown-content ul {
+    list-style-type: none; /* Remove bullets from list */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+/* Individual List Item Styles */
+.dropdown-content li {
+    padding: 12px 16px; /* Padding for each item */
+    cursor: pointer; /* Cursor indicates clickable */
+    transition: background-color 0.2s; /* Transition effect */
+}
+
+/* Hover Effect for List Items */
+.dropdown-content li:hover {
+    background-color: #f1f1f1; /* Light gray background on hover */
+}
+
+/* Show the dropdown when hovered over the button */
+.dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown on hover */
+}
+
+/* Styles for Selected Month and Year */
+#selectedMonth,
+#selectedYear {
+    font-weight: bold; /* Bold font for selected month/year */
+}
