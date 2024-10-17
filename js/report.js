@@ -1,6 +1,7 @@
 let currentPage = 1;         
 const pageSize = 14;          
 let fullReportList = [];
+let selectedMonth = '';  // Global variable to store the currently selected month
 
 // Display the logged-in admin's name
 function displayAdminName() {
@@ -15,25 +16,60 @@ function displayAdminName() {
 }
 
 // Set the report title (Month-Year format)
-function setReportTitle() {
+function setReportTitle(month = '') {
     const reportTitleElement = document.getElementById('report-title');
     const date = new Date();
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const currentMonth = monthNames[date.getMonth()];
-    const currentYear = date.getFullYear();
-    
-    reportTitleElement.textContent = `${currentMonth} Report - ${currentYear}`;
+
+    if (month) {
+        reportTitleElement.textContent = `${monthNames[parseInt(month) - 1]} Report - ${date.getFullYear()} `;
+    } else {
+        const currentMonth = monthNames[date.getMonth()];
+        const currentYear = date.getFullYear();
+        reportTitleElement.textContent = `${currentMonth} Report - ${currentYear}`;
+    }
 }
 
+// Toggle the month dropdown visibility when clicking the report title
+document.getElementById('report-title').addEventListener('click', function () {
+    const monthDropdown = document.getElementById('monthDropdown');
+    
+    // Toggle the display of the month dropdown
+    if (monthDropdown.style.display === 'none' || monthDropdown.style.display === '') {
+        monthDropdown.style.display = 'block';
+    } else {
+        monthDropdown.style.display = 'none';
+    }
+});
+
+// Add event listeners for the month list items
+document.querySelectorAll('#monthList li').forEach(function (item) {
+    item.addEventListener('click', function () {
+        selectedMonth = this.getAttribute('data-month');  // Update the selected month
+        
+        // Fetch reports for the selected month with an empty search term initially
+        fetchReports('', selectedMonth);
+
+        // Update the report title based on the selected month
+        setReportTitle(selectedMonth);
+
+        // Hide the dropdown after selection
+        document.getElementById('monthDropdown').style.display = 'none';
+    });
+});
+
 // Fetch all reports from the reportlist table
-function fetchReports(searchTerm = '') {
+function fetchReports(searchTerm = '', month = '') {
     const url = new URL('https://triqride.onrender.com/api/reports');
 
-    // Append search query to the URL if a search term is provided
+    // Append search query and month filter to the URL if provided
     if (searchTerm) {
         url.searchParams.append('search', searchTerm);
     }
-    
+    if (month) {
+        url.searchParams.append('month', month);  // Assuming your API accepts a 'month' parameter
+    }
+
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -43,9 +79,8 @@ function fetchReports(searchTerm = '') {
         })
         .then(data => {
             displayReports(data);
-            fullReportList = data;
-            displayPaginatedReports();
-
+            fullReportList = data; // Store fetched data for pagination
+            displayPaginatedReports(); // Display the paginated reports
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
@@ -66,11 +101,17 @@ function displayReports(reports) {
     const tableBody = document.querySelector('tbody');
     tableBody.innerHTML = ''; // Clear any existing rows
 
-    reports.forEach(report => {
+    // Calculate the starting index based on the current page
+    const startIndex = (currentPage - 1) * pageSize;
+
+    reports.forEach((report, index) => {
         const row = document.createElement('tr');
 
+        // Calculate the row number (based on pagination)
+        const rowNumber = startIndex + index + 1;
+
         row.innerHTML = `
-            <td><strong>${report.id}.</strong></td>
+            <td><strong>${rowNumber}.</strong></td>  <!-- Row number -->
             <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
             <td>${report.Plate_number}</td> <!-- Plate number from DB -->
             <td>${report.ratings}</td>       <!-- Ratings from DB -->
@@ -80,7 +121,7 @@ function displayReports(reports) {
 
         tableBody.appendChild(row);
     });
-}    
+} 
 
 // Update the pagination controls
 function updatePaginationControls() {
@@ -107,30 +148,18 @@ document.getElementById('nextPage').addEventListener('click', () => {
     }
 });
 
-
 // Event listener for the search bar using 'keyup'
 document.getElementById('searchBar').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase(); // Get the search term from the input field
+    const searchTerm = this.value.toLowerCase();  // Get the search term from the input field
 
-    // Make the API call to search for reports using the search term
-    fetch(`https://triqride.onrender.com/api/reports?search=${encodeURIComponent(searchTerm)}`, { mode: 'cors' })
-        .then(response => response.json())
-        .then(data => {
-            displayReports(data); // Display the results in the table
-            fullReportList = data;  // Store search results in fullReportList
-            currentPage = 1;  // Reset to first page for search results
-            displayPaginatedReports();  // Display the search results
-            
-        })
-        .catch(error => {
-            console.error('Error fetching reports:', error);
-        });
+    // Make the API call to search for reports using the search term and selected month
+    fetchReports(searchTerm, selectedMonth);  // Pass both the search term and the month
 });
 
 // Call functions when the page loads
 window.addEventListener('load', () => {
     displayAdminName();  
-    fetchReports(); // Fetch and display all reports when the page loads
+    fetchReports(); 
     setReportTitle();
 });
 
