@@ -19,8 +19,8 @@ function displayAdminName() {
 }
 
 window.addEventListener('load', () => {
-    displayAdminName();  
-    getUsers();  
+    displayAdminName();
+    getUsers();
 });
 
 // Handle image file input change event
@@ -38,7 +38,7 @@ imageUpload.addEventListener("change", (event) => {
         }
         const reader = new FileReader();
 
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             imagePreview.src = e.target.result; // Set the source to the loaded file
             imagePreview.style.display = "block"; // Show the image preview
         }
@@ -114,15 +114,26 @@ function displayUsers(data) {
     let html = "";
     data.forEach(element => {
         const imageSrc = element.Image ? element.Image : 'placeholder.jpg'; // Default image
+        const overallRating = element.averageRating ? element.averageRating.toFixed(2) : 'Not available'; // Use the averageRating from the backend
 
         html += `
             <tr>
                 <td><strong>${element.id}.</strong></td>
-                <td><img src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" /></td>
-                <td>${element.Driver_name}</td>
-                <td>${element.Plate_number}</td>
-                <td>${element.Barangay}</td>
-                <td>
+                <td class="text-align">
+                    <img src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" />
+                </td>
+                <td class="text-center">${element.Plate_number}</td>
+                <td class="text-center">
+                    <button class="btn btn-info profile-preview-btn" 
+                            data-driver="${element.Driver_name}" 
+                            data-franchise="${element.Plate_number}" 
+                            data-barangay="${element.Barangay}" 
+                            data-image="${imageSrc}" 
+                            data-overall-rating="${overallRating}"> <!-- Pass overall rating here -->
+                        Preview Profile
+                    </button>
+                </td>
+                <td class="text-center">
                     <button class="btn btn-success download-qr-btn" data-id="${element.id}">
                         <i class="fas fa-download"></i> Download QR
                     </button>
@@ -131,7 +142,61 @@ function displayUsers(data) {
     });
     document.querySelector('tbody').innerHTML = html;
 
-    // Add event listeners for QR code download buttons
+    // Add event listeners for profile preview buttons
+    document.querySelectorAll('.profile-preview-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const franchiseNumber = event.target.getAttribute('data-franchise');
+    
+            // Fetch driver and report details
+            fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const driverData = data.data; // Use the object directly
+    
+                        // Update modal with driver details
+                        document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
+                        document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
+                        document.getElementById('modalBarangay').textContent = driverData.Barangay;
+                        document.getElementById('modalDriverImage').src = driverData.Image ? driverData.Image : 'placeholder.jpg';
+    
+                        // Handle ratings
+                        document.getElementById('modalOverallRating').textContent = driverData.averageRating
+                            ? driverData.averageRating.toFixed(2)
+                            : 'Not available';
+    
+                        // Handle violations and report details
+                        const violationsList = document.getElementById('modalViolationsList');
+                        violationsList.innerHTML = ''; // Clear the list first
+    
+                        if (driverData.ViolationHistory) {
+                            const violations = driverData.ViolationHistory.split(', '); // Split the concatenated string into an array
+                            violations.forEach(violation => {
+                                const li = document.createElement('li');
+                                li.textContent = violation;
+                                violationsList.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = 'No violations reported';
+                            violationsList.appendChild(li);
+                        }
+    
+                        // Show the modal with the updated data
+                        const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+                        profileModal.show();
+                    } else {
+                        alert('No data available for the selected driver.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching driver report details:', error);
+                    alert('Failed to fetch report details.');
+                });
+        });
+    });
+
+    // Add event listeners for download QR buttons
     document.querySelectorAll('.download-qr-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const id = event.target.closest('.download-qr-btn').getAttribute('data-id');
@@ -159,7 +224,7 @@ document.getElementById('nextPage').addEventListener('click', () => {
         currentPage++;
         displayPaginatedUsers();
     }
-});    
+});
 
 // Function to generate and download the QR code
 function generateQRCode(id) {
