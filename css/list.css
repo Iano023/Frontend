@@ -189,4 +189,25 @@ table img {
     display: none;
 }
 
+star-rating {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+}
 
+.star {
+    cursor: pointer;
+    color: #ccc; /* Default color for unselected stars */
+    margin-right: 5px;
+    transition: color 0.2s ease;
+}
+
+.star.selected {
+    color: #ffc107; /* Gold color for selected stars */
+}
+
+.no-bullets {
+    list-style-type: none; /* Remove bullet points */
+    padding-left: 0; /* Optional: remove left padding */
+}
