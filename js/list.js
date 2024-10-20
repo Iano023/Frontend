@@ -81,23 +81,11 @@ function getUsers() {
     fetch('https://triqride.onrender.com/api/list/', { mode: 'cors' })
         .then(response => response.json())
         .then(data => {
-            fullDriverList = data;  // Store the full list of users
-            displayPaginatedUsers();  // Display the initial page of users
-
-            // Add event listener for the image modal
-            document.querySelector('tbody').addEventListener('click', (event) => {
-                if (event.target.tagName === 'IMG') {
-                    const imgSrc = event.target.src;  // Get the image source
-                    const modalImage = document.querySelector('#modalImage');
-                    modalImage.src = imgSrc;  // Set the modal image source
-
-                    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-                    modal.show();  // Show the modal
-                }
-            });
+            fullDriverList = data;  // Store the full list of drivers
+            displayPaginatedUsers();  // Display the paginated list of users
         })
         .catch(error => {
-            console.log(error);
+            console.error('Error fetching driver list:', error);
         });
 }
 
@@ -109,6 +97,17 @@ function displayPaginatedUsers() {
     updatePaginationControls();
 }
 
+function updateStarRating(rating) {
+    const stars = document.querySelectorAll('#modalStarRating .star');
+    stars.forEach(star => {
+        const value = parseInt(star.getAttribute('data-value'));
+        if (value <= rating) {
+            star.classList.add('selected');
+        } else {
+            star.classList.remove('selected');
+        }
+    });
+}
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
@@ -120,8 +119,9 @@ function displayUsers(data) {
             <tr>
                 <td><strong>${element.id}.</strong></td>
                 <td class="text-align">
-                    <img src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" />
+                    <img class="clickable-image" src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" />
                 </td>
+                <td class="text-center">${element.Driver_name}</td>
                 <td class="text-center">${element.Plate_number}</td>
                 <td class="text-center">
                     <button class="btn btn-info profile-preview-btn" 
@@ -129,7 +129,7 @@ function displayUsers(data) {
                             data-franchise="${element.Plate_number}" 
                             data-barangay="${element.Barangay}" 
                             data-image="${imageSrc}" 
-                            data-overall-rating="${overallRating}"> <!-- Pass overall rating here -->
+                            data-overall-rating="${overallRating}">
                         Preview Profile
                     </button>
                 </td>
@@ -142,38 +142,59 @@ function displayUsers(data) {
     });
     document.querySelector('tbody').innerHTML = html;
 
+    // Reattach image click event listeners here
+    document.querySelectorAll('.clickable-image').forEach(img => {
+        img.addEventListener('click', (event) => {
+            const imgSrc = event.target.src; // Get the clicked image's source
+            const modalImage = document.querySelector('#previewImage'); // Select the image inside the modal
+            modalImage.src = imgSrc; // Set the modal image source
+
+            // Create a new bootstrap modal instance and show the modal
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show(); // Show the modal
+        });
+    });
+
     // Add event listeners for profile preview buttons
     document.querySelectorAll('.profile-preview-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const franchiseNumber = event.target.getAttribute('data-franchise');
-    
+
             // Fetch driver and report details
             fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.data) {
-                        const driverData = data.data; // Use the object directly
-    
+                        const driverData = data.data;
+
                         // Update modal with driver details
                         document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
                         document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
                         document.getElementById('modalBarangay').textContent = driverData.Barangay;
                         document.getElementById('modalDriverImage').src = driverData.Image ? driverData.Image : 'placeholder.jpg';
-    
+
                         // Handle ratings
                         document.getElementById('modalOverallRating').textContent = driverData.averageRating
                             ? driverData.averageRating.toFixed(2)
                             : 'Not available';
-    
+                        const overallRating = driverData.averageRating ? Math.round(driverData.averageRating) : 0;
+                        updateStarRating(overallRating);
+
+                        // Handle total violations
+                        document.getElementById('modalTotalViolations').textContent = driverData.totalViolations;
+
                         // Handle violations and report details
                         const violationsList = document.getElementById('modalViolationsList');
                         violationsList.innerHTML = ''; // Clear the list first
-    
+
                         if (driverData.ViolationHistory) {
                             const violations = driverData.ViolationHistory.split(', '); // Split the concatenated string into an array
-                            violations.forEach(violation => {
+                            violations.forEach((violation, index) => {  // Use index to add numbering
+                                const [violationText, violationDateTime] = violation.split(' - '); // Assuming the violation history has "ViolationText - DateTime" format
+                                const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
+                        
                                 const li = document.createElement('li');
-                                li.textContent = violation;
+                                li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`; // Add numbering with the index
                                 violationsList.appendChild(li);
                             });
                         } else {
@@ -181,7 +202,7 @@ function displayUsers(data) {
                             li.textContent = 'No violations reported';
                             violationsList.appendChild(li);
                         }
-    
+
                         // Show the modal with the updated data
                         const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
                         profileModal.show();
@@ -203,6 +224,20 @@ function displayUsers(data) {
             generateQRCode(id);
         });
     });
+}
+
+function formatTo12HourClock(date) {
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Months are zero-indexed
+    const year = date.getFullYear();
+    
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert 0 to 12 for midnight
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes; // Add leading zero to minutes if needed
+    
+    return `${month}/${day}/${year} ${formattedHours}:${formattedMinutes} ${ampm}`; // Return full date and time
 }
 
 function updatePaginationControls() {
