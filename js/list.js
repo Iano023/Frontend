@@ -124,7 +124,7 @@ function displayUsers(data) {
                 <td class="text-center">${element.Driver_name}</td>
                 <td class="text-center">${element.Plate_number}</td>
                 <td class="text-center">
-                    <button class="btn btn-info profile-preview-btn" 
+                    <button class="btn custom-orange-btn profile-preview-btn" 
                             data-driver="${element.Driver_name}" 
                             data-franchise="${element.Plate_number}" 
                             data-barangay="${element.Barangay}" 
