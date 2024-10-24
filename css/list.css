@@ -211,3 +211,13 @@ star-rating {
     list-style-type: none; /* Remove bullet points */
     padding-left: 0; /* Optional: remove left padding */
 }
+
+.custom-orange-btn {
+    background-color: #ff5100; /* Dark orange */
+    color: white;
+    border: none;
+}
+
+.custom-orange-btn:hover {
+    background-color: #ff7518; /* Lighter orange on hover */
+}
