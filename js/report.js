@@ -3,9 +3,6 @@ const pageSize = 14;
 let fullReportList = [];
 let selectedMonth = '';  // Global variable to store the currently selected month
 
-if (!localStorage.getItem('fullname')) {
-    window.location.href = 'index.html';
-}
 
 // Display the logged-in admin's name
 function displayAdminName() {
@@ -192,6 +189,5 @@ function toggleSidebar() {
 
 // Logout function
 function logout() {
-    localStorage.removeItem('fullname');
     window.location.href = 'index.html';
 }
