@@ -177,24 +177,38 @@ function displayUsers(data) {
                         document.getElementById('modalOverallRating').textContent = driverData.averageRating
                             ? driverData.averageRating.toFixed(2)
                             : 'Not available';
-                        const overallRating = driverData.averageRating ? Math.round(driverData.averageRating) : 0;
-                        updateStarRating(overallRating);
+                        
 
-                        // Handle total violations
-                        document.getElementById('modalTotalViolations').textContent = driverData.totalViolations;
+                        const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
+                        const ratingCount = driverData.ratingCount || 0; // Default to 0 if undefined
+    
+                        // Set overall rating and rating count
+                        document.getElementById('modalOverallRating').textContent = overallRating;
+                        document.getElementById('modalRatingCount').textContent = ratingCount;
+    
+                        // Update star rating visually
+                        updateStarRating(Math.round(driverData.averageRating || 0));
 
-                        // Handle violations and report details
+                        // Process valid violations only
+                        const violationHistory = driverData.ViolationHistory ? driverData.ViolationHistory.split(', ') : [];
+                        const validViolations = violationHistory.filter(violation => {
+                            const [violationText, violationDateTime] = violation.split(' - ');
+                            return violationText && violationDateTime; // Only count if both text and date exist
+                        });
+
+                        // Display the count of valid violations
+                        document.getElementById('modalTotalViolations').textContent = validViolations.length;
+
+                        // Display each valid violation in the list
                         const violationsList = document.getElementById('modalViolationsList');
                         violationsList.innerHTML = ''; // Clear the list first
-
-                        if (driverData.ViolationHistory) {
-                            const violations = driverData.ViolationHistory.split(', '); // Split the concatenated string into an array
-                            violations.forEach((violation, index) => {  // Use index to add numbering
-                                const [violationText, violationDateTime] = violation.split(' - '); // Assuming the violation history has "ViolationText - DateTime" format
+                        if (validViolations.length > 0) {
+                            validViolations.forEach((violation, index) => {
+                                const [violationText, violationDateTime] = violation.split(' - ');
                                 const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
-                        
+
                                 const li = document.createElement('li');
-                                li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`; // Add numbering with the index
+                                li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`;
                                 violationsList.appendChild(li);
                             });
                         } else {
@@ -230,13 +244,13 @@ function formatTo12HourClock(date) {
     const day = date.getDate();
     const month = date.getMonth() + 1; // Months are zero-indexed
     const year = date.getFullYear();
-    
+
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     const formattedHours = hours % 12 || 12; // Convert 0 to 12 for midnight
     const formattedMinutes = minutes < 10 ? '0' + minutes : minutes; // Add leading zero to minutes if needed
-    
+
     return `${month}/${day}/${year} ${formattedHours}:${formattedMinutes} ${ampm}`; // Return full date and time
 }
 
@@ -321,3 +335,12 @@ function toggleSidebar() {
         sidebarOptions.classList.remove('hidden');
     }
 }
+
+window.addEventListener('load', () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    
+    if (!sessionToken) {
+        // Redirect to login if no token is found
+        window.location.href = 'index.html';
+    }
+});
