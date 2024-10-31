@@ -1,1 +1,0 @@
-View profile(Button) -> Data Information below image(Over rating)  eg. Franchise (Preview) -> Below Data History of violations with label Eg. (number of Violation(preview violation), Timedate)
