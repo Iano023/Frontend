@@ -1,8 +1,7 @@
 let currentPage = 1;         
-const pageSize = 14;          
+const pageSize = 15;          
 let fullReportList = [];
 let selectedMonth = '';  // Global variable to store the currently selected month
-
 
 // Display the logged-in admin's name
 function displayAdminName() {
@@ -164,6 +163,44 @@ window.addEventListener('load', () => {
     setReportTitle();
 });
 
+function exportToExcel() {
+    if (fullReportList.length === 0) {
+        alert("No data to export");
+        return;
+    }
+
+    // Prepare data for Excel export
+    const dataForExcel = fullReportList.map((report, index) => ({
+        'Row Number': index + 1,
+        'Owner Name': report.Driver_name,
+        'Franchise Number': report.Plate_number,
+        'Ratings': report.ratings,
+        'Date and Time': new Date(report.report_datetime).toLocaleString(),
+        'Report': report.Violations,
+    }));
+
+    // Create a new workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(dataForExcel);
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Report List");
+
+    // Get the selected month and current year
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"
+    ];
+    const month = selectedMonth ? monthNames[parseInt(selectedMonth) - 1] : monthNames[new Date().getMonth()];
+    const year = new Date().getFullYear();
+
+    // Generate the filename with "Report List for Month Year" format
+    const fileName = `Report List for ${month} ${year}.xlsx`;
+
+    // Export to Excel file
+    XLSX.writeFile(wb, fileName);
+}
+
 // Function to toggle sidebar visibility
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -189,5 +226,15 @@ function toggleSidebar() {
 
 // Logout function
 function logout() {
+    localStorage.removeItem('sessionToken');
     window.location.href = 'index.html';
 }
+
+window.addEventListener('load', () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    
+    if (!sessionToken) {
+        // Redirect to login if no token is found
+        window.location.href = 'index.html';
+    }
+});
