@@ -20,10 +20,11 @@ document.getElementById('login-form').addEventListener('submit', async function 
             messageElem.style.color = 'green';
             messageElem.innerText = data.message; // 'Login successful'
 
-            // Store the full name in localStorage
+            // Store the full name and session token in localStorage
             localStorage.setItem('fullname', data.fullname);
+            localStorage.setItem('sessionToken', data.token);  // Store session token
 
-            // Redirect the user to the dashboard page
+            // Redirect the user to the protected report page
             window.location.href = 'report.html';
         } else {
             messageElem.style.color = 'red';
