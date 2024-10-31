@@ -221,11 +221,3 @@ function toggleSidebar() {
     }
 }
 
-window.addEventListener('load', () => {
-    const sessionToken = localStorage.getItem('sessionToken');
-    
-    if (!sessionToken) {
-        // Redirect to login if no token is found
-        window.location.href = 'index.html';
-    }
-});
