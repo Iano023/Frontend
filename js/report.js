@@ -46,6 +46,7 @@ document.getElementById('report-title').addEventListener('click', function () {
 document.querySelectorAll('#monthList li').forEach(function (item) {
     item.addEventListener('click', function () {
         selectedMonth = this.getAttribute('data-month');  // Update the selected month
+        currentPage = 1;
         
         // Fetch reports for the selected month with an empty search term initially
         fetchReports('', selectedMonth);
