@@ -232,9 +232,14 @@ function logout() {
 
 window.addEventListener('load', () => {
     const sessionToken = localStorage.getItem('sessionToken');
-    
+
+    // Redirect to login page if no token is found
     if (!sessionToken) {
-        // Redirect to login if no token is found
         window.location.href = 'index.html';
+    } else {
+        // Reload the page from the server to avoid showing a cached page after logout
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+            window.location.reload();
+        }
     }
 });
