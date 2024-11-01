@@ -157,79 +157,90 @@ function displayUsers(data) {
 
     // Add event listeners for profile preview buttons
     document.querySelectorAll('.profile-preview-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const franchiseNumber = event.target.getAttribute('data-franchise');
+    button.addEventListener('click', (event) => {
+        const franchiseNumber = event.target.getAttribute('data-franchise');
+        console.log('Button clicked for franchise:', franchiseNumber);  // Log franchise number
 
-            // Fetch driver and report details
-            fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.data) {
-                        const driverData = data.data;
+        // Fetch driver and report details
+        fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
+            .then(response => {
+                console.log('Received response from API:', response);  // Log the raw response
+                return response.json();
+            })
+            .then(data => {
+                console.log('Parsed JSON data:', data);  // Log parsed JSON data
 
-                        // Update modal with driver details
-                        document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
-                        document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
-                        document.getElementById('modalBarangay').textContent = driverData.Barangay;
-                        document.getElementById('modalDriverImage').src = driverData.Image ? driverData.Image : 'placeholder.jpg';
+                if (data.success && data.data) {
+                    const driverData = data.data;
+                    console.log('Driver data:', driverData);  // Log driver data
 
-                        // Handle ratings
-                        document.getElementById('modalOverallRating').textContent = driverData.averageRating
-                            ? driverData.averageRating.toFixed(2)
-                            : 'Not available';
-                        
+                    // Update modal with driver details
+                    document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
+                    document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
+                    document.getElementById('modalBarangay').textContent = driverData.Barangay;
+                    document.getElementById('modalDriverImage').src = driverData.Image ? driverData.Image : 'placeholder.jpg';
 
-                        const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
-                        const ratingCount = driverData.ratingCount || 0; // Default to 0 if undefined
-    
-                        // Set overall rating and rating count
-                        document.getElementById('modalOverallRating').textContent = overallRating;
-                        document.getElementById('modalRatingCount').textContent = ratingCount;
-    
-                        // Update star rating visually
+                    // Handle ratings
+                    const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
+                    const ratingCount = driverData.ratingCount || 0;
+
+                    document.getElementById('modalOverallRating').textContent = overallRating;
+                    document.getElementById('modalRatingCount').textContent = ratingCount;
+
+                    console.log('Overall Rating:', overallRating, 'Rating Count:', ratingCount);  // Log ratings
+
+                    // Update star rating visually
+                    if (typeof updateStarRating === 'function') {
                         updateStarRating(Math.round(driverData.averageRating || 0));
-
-                        // Process valid violations only
-                        const violationHistory = driverData.ViolationHistory ? driverData.ViolationHistory.split(', ') : [];
-                        const validViolations = violationHistory.filter(violation => {
-                            const [violationText, violationDateTime] = violation.split(' - ');
-                            return violationText && violationDateTime; // Only count if both text and date exist
-                        });
-
-                        // Display the count of valid violations
-                        document.getElementById('modalTotalViolations').textContent = validViolations.length;
-
-                        // Display each valid violation in the list
-                        const violationsList = document.getElementById('modalViolationsList');
-                        violationsList.innerHTML = ''; // Clear the list first
-                        if (validViolations.length > 0) {
-                            validViolations.forEach((violation, index) => {
-                                const [violationText, violationDateTime] = violation.split(' - ');
-                                const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
-
-                                const li = document.createElement('li');
-                                li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`;
-                                violationsList.appendChild(li);
-                            });
-                        } else {
-                            const li = document.createElement('li');
-                            li.textContent = 'No violations reported';
-                            violationsList.appendChild(li);
-                        }
-
-                        // Show the modal with the updated data
-                        const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
-                        profileModal.show();
                     } else {
-                        alert('No data available for the selected driver.');
+                        console.warn('updateStarRating function is not defined');
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching driver report details:', error);
-                    alert('Failed to fetch report details.');
-                });
-        });
+
+                    // Process valid violations only
+                    const violationHistory = driverData.ViolationHistory ? driverData.ViolationHistory.split(', ') : [];
+                    const validViolations = violationHistory.filter(violation => {
+                        const [violationText, violationDateTime] = violation.split(' - ');
+                        return violationText && violationDateTime;  // Only count if both text and date exist
+                    });
+
+                    console.log('Valid Violations:', validViolations);  // Log valid violations
+
+                    // Display the count of valid violations
+                    document.getElementById('modalTotalViolations').textContent = validViolations.length;
+
+                    // Display each valid violation in the list
+                    const violationsList = document.getElementById('modalViolationsList');
+                    violationsList.innerHTML = ''; // Clear the list first
+                    if (validViolations.length > 0) {
+                        validViolations.forEach((violation, index) => {
+                            const [violationText, violationDateTime] = violation.split(' - ');
+                            const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
+
+                            const li = document.createElement('li');
+                            li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`;
+                            violationsList.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.textContent = 'No violations reported';
+                        violationsList.appendChild(li);
+                    }
+
+                    // Show the modal with the updated data
+                    const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+                    profileModal.show();
+                    console.log('Modal shown successfully');  // Log modal display status
+                } else {
+                    console.warn('No data available for the selected driver.');  // Log warning if data is missing
+                    alert('No data available for the selected driver.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching driver report details:', error);  // Log any errors
+                alert('Failed to fetch report details.');
+            });
     });
+});
 
     // Add event listeners for download QR buttons
     document.querySelectorAll('.download-qr-btn').forEach(button => {
