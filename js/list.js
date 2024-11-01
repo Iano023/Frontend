@@ -162,7 +162,7 @@ function displayUsers(data) {
         console.log('Button clicked for franchise:', franchiseNumber);
 
         // Fetch driver and report details
-        fetch(`https://triqride.onrender.com/api/driver/:plateNumber`, { mode: 'cors' })
+        fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
             .then(response => {
                 console.log('Received response from API:', response);
                 return response.json();
