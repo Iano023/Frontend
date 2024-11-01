@@ -47,7 +47,7 @@ document.querySelectorAll('#monthList li').forEach(function (item) {
     item.addEventListener('click', function () {
         selectedMonth = this.getAttribute('data-month');  // Update the selected month
         currentPage = 1;
-        
+
         // Fetch reports for the selected month with an empty search term initially
         fetchReports('', selectedMonth);
 
@@ -228,19 +228,31 @@ function toggleSidebar() {
 // Logout function
 function logout() {
     localStorage.removeItem('sessionToken');
-    window.location.href = 'index.html';
+
+    // Clear browser cache to prevent back navigation to cached pages
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+
+    // Redirect to login page and prevent back button from returning to protected pages
+    window.location.replace('index.html');
 }
 
 window.addEventListener('load', () => {
     const sessionToken = localStorage.getItem('sessionToken');
-
-    // Redirect to login page if no token is found
+    
     if (!sessionToken) {
-        window.location.href = 'index.html';
+        // Redirect to login if no token is found
+        window.location.replace('index.html');
     } else {
-        // Reload the page from the server to avoid showing a cached page after logout
-        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
-            window.location.reload();
-        }
+        // Prevent back navigation to this page if logged out
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = function () {
+            if (!localStorage.getItem('sessionToken')) {
+                window.location.replace('index.html');
+            }
+        };
     }
 });
