@@ -1,0 +1,308 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5; /* Your version used */
+    padding: 20px; /* Your version used */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 60px;
+    height: 100vh;
+    background-color: #e74c3c;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+}
+
+.sidebar.expanded {
+    width: 220px;
+}
+
+.sidebar .option-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: flex-start; /* Aligns icon to the left inside the container */
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: relative;
+    padding-left: 15px; /* Adjust this value to move the icon to the right */
+}
+
+/* Sidebar title beside icon */
+.sidebar .sidebar-title {
+    opacity: 0;
+    visibility: hidden;
+    white-space: nowrap;
+    font-size: 16px;
+    color: white;
+    margin-left: 10px; /* Space between icon and title */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show title only when expanded */
+.sidebar.expanded .sidebar-title {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar .option-icon:hover {
+    background-color: #c0392b;
+}
+
+
+.sidebar .option-icon:hover {
+    background-color: #c0392b;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    background-color: #c0392b;
+}
+
+.sidebar ul li a i {
+    width: 20px;
+    margin-right: 15px;
+    text-align: center;
+}
+
+.sidebar ul li a span {
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.expanded ul li a span {
+    opacity: 1;
+}
+
+.main-content {
+    margin-left: 60px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.shifted {
+    margin-left: 220px;
+}
+
+/* Header */
+.header {
+    background-color: white;
+    padding: 20px; /* Your version used */
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Your version used */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Tab Navigation */
+.tab-container {
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tab:hover {
+    background-color: #d0d0d0;
+}
+
+.tab.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Stats Container */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Stat Card */
+.stat-card {
+    background-color: white;
+    padding: 20px; /* Your version used */
+    border-radius: 10px; /* Your version used */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Your version used */
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.stat-card .value {
+    font-size: 1.8rem; /* Your version used */
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-card i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #e74c3c;
+}
+
+/* Chart Container */
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Chart Card */
+.chart-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px; /* Your version used */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Your version used */
+    height: 400px; /* Your version used */
+}
+
+.chart-card h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Recent Activity */
+.recent-activity {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.activity-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item .time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Admin Section */
+.admin-section {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.admin-section .admin-name {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.admin-section .admin-title {
+    font-size: 12px;
+    color: gray;
+}
+
+/* Hidden Utility */
+.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-card .value {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tab {
+        width: 100%;
+    }
+}
