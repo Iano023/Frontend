@@ -366,6 +366,39 @@ function toggleEditable(isEditable) {
     }
 }
 
+function resetToEditState() {
+    // Restore original values in case they were edited
+    document.getElementById("modalOwnerName").textContent = originalData.Driver_name;
+    document.getElementById("modalFranchiseNumber").textContent = originalData.Plate_number;
+    document.getElementById("modalBarangay").textContent = originalData.Barangay;
+
+    // Disable editing mode
+    toggleEditable(false);
+
+    // Show the "Edit" button and hide the "Save" and "Cancel" buttons
+    document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("saveChangesBtn").classList.add("d-none");
+    document.getElementById("cancelBtn").classList.add("d-none");
+}
+
+// Add Esc key listener when the modal is shown
+document.getElementById('profileModal').addEventListener('shown.bs.modal', () => {
+    function escKeyListener(event) {
+        if (event.key === 'Escape') {
+            resetToEditState();
+        }
+    }
+
+    // Attach keydown event listener for Esc key
+    document.addEventListener('keydown', escKeyListener);
+
+    // Remove the listener when modal is hidden to avoid multiple listeners
+    document.getElementById('profileModal').addEventListener('hidden.bs.modal', () => {
+        document.removeEventListener('keydown', escKeyListener);
+        resetToEditState();  // Also reset state when modal is closed
+    });
+});
+
 function formatTo12HourClock(date) {
     const day = date.getDate();
     const month = date.getMonth() + 1; // Months are zero-indexed
