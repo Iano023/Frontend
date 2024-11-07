@@ -1,6 +1,9 @@
 let currentPage = 1;
 const pageSize = 10;
 let fullDriverList = [];
+let originalData = {}; // Store original data
+let currentEditingId = null; // Track the currently editing driver ID
+let isEditMode = false;
 
 const submit = document.querySelector('#submit');
 const imageUpload = document.querySelector("#imageUpload");
@@ -14,7 +17,7 @@ function displayAdminName() {
     if (fullname) {
         adminNameElement.textContent = fullname; // Display fullname
     } else {
-        adminNameElement.textContent = 'Admin'; // Default fallback
+        adminNameElement.textContent = 'Admin'; 
     }
 }
 
@@ -51,29 +54,40 @@ imageUpload.addEventListener("change", (event) => {
 document.querySelector('#submit-form').addEventListener('submit', (e) => {
     e.preventDefault();
 
+    const plateNumber = document.querySelector('#plate').value.trim();
+
+    // Check if plate number already exists in the driver list
+    const isDuplicate = fullDriverList.some(driver => driver.Plate_number === plateNumber);
+
+    if (isDuplicate) {
+        alert('This Franchise Number already exists.');
+        location.reload();
+        return; // Prevent form submission
+    }
+
     const formData = new FormData();
-    formData.append('plate', document.querySelector('#plate').value);
-    formData.append('driver', document.querySelector('#driver').value);
-    formData.append('brgy', document.querySelector('#brgy').value);
+    formData.append('plate', plateNumber);
+    formData.append('driver', document.querySelector('#driver').value.trim());
+    formData.append('brgy', document.querySelector('#brgy').value.trim());
     formData.append('image', imageUpload.files[0]); // Use imageUpload directly
 
     fetch('https://triqride.onrender.com/api/list', {
         method: 'POST',
         body: formData,
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.msg) {
-                alert('Record added successfully!');
-                location.reload();
-            } else {
-                alert('Failed to add record.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding record.');
-        });
+    .then(response => response.json())
+    .then(data => {
+        if (data.msg) {
+            alert('Record added successfully!');
+            location.reload();
+        } else {
+            alert('Failed to add record.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding record.');
+    });
 });
 
 // Fetch and display all users
@@ -108,6 +122,7 @@ function updateStarRating(rating) {
         }
     });
 }
+
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
@@ -166,6 +181,14 @@ function displayUsers(data) {
                 .then(data => {
                     if (data.success && data.data) {
                         const driverData = data.data;
+                        currentEditingId = driverData.id; // Store the current driver ID
+
+                        // Store original data
+                        originalData = {
+                            Driver_name: driverData.Driver_name,
+                            Plate_number: driverData.Plate_number,
+                            Barangay: driverData.Barangay
+                        };
 
                         // Update modal with driver details
                         document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
@@ -203,12 +226,14 @@ function displayUsers(data) {
                         const violationsList = document.getElementById('modalViolationsList');
                         violationsList.innerHTML = ''; // Clear the list first
                         if (validViolations.length > 0) {
+                            violationsList.innerHTML = ''; // Clear the list
                             validViolations.forEach((violation, index) => {
-                                const [violationText, violationDateTime] = violation.split(' - ');
+                                const [violationText, violationDateTime, reporterName] = violation.split(' - ');
                                 const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
-
+                        
                                 const li = document.createElement('li');
-                                li.textContent = `${index + 1}. ${violationText} (Date: ${formattedDateTime})`;
+                                li.innerHTML = `${index + 1}. ${violationText} (Date: ${formattedDateTime})<br>
+                                               <span style="margin-left: 20px; color: #666;">Reported By: ${reporterName || 'Anonymous'}</span>`;
                                 violationsList.appendChild(li);
                             });
                         } else {
@@ -238,6 +263,107 @@ function displayUsers(data) {
             generateQRCode(id);
         });
     });
+}
+
+document.getElementById("editBtn").addEventListener("click", function () {
+    toggleEditable(true);
+
+    // Show the "Save Changes" button and hide the "Edit" button
+    document.getElementById("editBtn").classList.add("d-none");
+    document.getElementById("saveChangesBtn").classList.remove("d-none");
+    document.getElementById("cancelBtn").classList.remove("d-none");
+});
+
+document.getElementById("cancelBtn").addEventListener("click", function () {
+    // Restore original values
+    document.getElementById("modalOwnerName").textContent = originalData.Driver_name;
+    document.getElementById("modalFranchiseNumber").textContent = originalData.Plate_number;
+    document.getElementById("modalBarangay").textContent = originalData.Barangay;
+
+    toggleEditable(false);
+    document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("saveChangesBtn").classList.add("d-none");
+    document.getElementById("cancelBtn").classList.add("d-none");
+});
+
+document.getElementById("saveChangesBtn").addEventListener("click", function () {
+    if (!currentEditingId) {
+        alert('Error: No driver selected for editing');
+        return;
+    }
+
+    const updatedData = {
+        id: currentEditingId, 
+        Driver_name: document.getElementById("modalOwnerName").querySelector('input').value.trim(),
+        Plate_number: document.getElementById("modalFranchiseNumber").querySelector('input').value.trim(),
+        Barangay: document.getElementById("modalBarangay").querySelector('input').value.trim()
+    };
+
+    console.log('Sending update request with data:', updatedData);
+
+    fetch(`https://triqride.onrender.com/api/driver/update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response from server:', data);
+        if (data.success) {
+            alert('Driver information updated successfully!');
+            getUsers(); // Refresh the driver list
+            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            profileModal.hide();
+        } else {
+            throw new Error(data.message || 'Unknown error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating driver information: ' + error.message);
+    });
+
+    toggleEditable(false);
+    document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("saveChangesBtn").classList.add("d-none");
+    document.getElementById("cancelBtn").classList.add("d-none");
+});
+
+// Function to enable or disable input fields
+function toggleEditable(isEditable) {
+    const modalOwnerName = document.getElementById("modalOwnerName");
+    const modalFranchiseNumber = document.getElementById("modalFranchiseNumber");
+    const modalBarangay = document.getElementById("modalBarangay");
+    
+    if (isEditable) {
+        // Store current values
+        const ownerValue = modalOwnerName.textContent;
+        const franchiseValue = modalFranchiseNumber.textContent;
+        const barangayValue = modalBarangay.textContent;
+        
+        // Replace spans with input fields
+        modalOwnerName.innerHTML = `<input type="text" class="edit-input" value="${ownerValue}">`;
+        modalFranchiseNumber.innerHTML = `<input type="text" class="edit-input" value="${franchiseValue}">`;
+        modalBarangay.innerHTML = `<input type="text" class="edit-input" value="${barangayValue}">`;
+    } else {
+        // If we're disabling editing, just ensure we're showing text content
+        if (modalOwnerName.querySelector('input')) {
+            modalOwnerName.textContent = modalOwnerName.querySelector('input').value;
+        }
+        if (modalFranchiseNumber.querySelector('input')) {
+            modalFranchiseNumber.textContent = modalFranchiseNumber.querySelector('input').value;
+        }
+        if (modalBarangay.querySelector('input')) {
+            modalBarangay.textContent = modalBarangay.querySelector('input').value;
+        }
+    }
 }
 
 function formatTo12HourClock(date) {
@@ -335,17 +461,3 @@ function toggleSidebar() {
         sidebarOptions.classList.remove('hidden');
     }
 }
-
-window.addEventListener('load', () => {
-    const sessionToken = localStorage.getItem('sessionToken');
-
-    // Redirect to login page if no token is found
-    if (!sessionToken) {
-        window.location.href = 'index.html';
-    } else {
-        // Reload the page from the server to avoid showing a cached page after logout
-        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
-            window.location.reload();
-        }
-    }
-});
