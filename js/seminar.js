@@ -3,7 +3,7 @@ const pageSize = 10; // Number of rows per page
 let fullSeminarList = []; // Store all seminar data
 
 document.addEventListener('DOMContentLoaded', () => {
-    displayAdminName();
+    displayAdminInfo();
     fetchSeminarData(); // Fetch seminar data when the page loads
 
     // Add search functionality
@@ -14,14 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function displayAdminName() {
-    const fullname = localStorage.getItem('fullname'); // Retrieve fullname from localStorage
-    const adminNameElement = document.getElementById('adminName');
+const adminName = document.getElementById('adminName');
+const adminRole = document.getElementById('adminRole');
 
-    if (fullname) {
-        adminNameElement.textContent = fullname; // Display fullname
-    } else {
-        adminNameElement.textContent = 'Admin'; // Default fallback
+// Function to display admin info
+function displayAdminInfo() {
+    // Get stored fullname and role from localStorage
+    const fullname = localStorage.getItem('fullname');
+    const role = localStorage.getItem('userRole');
+
+    // Update the display
+    adminName.textContent = fullname || 'Unknown';
+    adminRole.textContent = role || 'Unknown Role';
+
+    // Check role and control sidebar visibility
+    const adminOnlyElements = document.querySelectorAll('.admin-only');
+
+    // Hide admin-only elements if the user is not a Head Admin
+    if (role !== 'Head Admin') {
+        adminOnlyElements.forEach(element => {
+            element.style.display = 'none';
+        });
     }
 }
 
@@ -223,14 +236,17 @@ function toggleSidebar() {
 
 window.addEventListener('load', () => {
     const sessionToken = localStorage.getItem('sessionToken');
-
-    // Redirect to login page if no token is found
+    
     if (!sessionToken) {
-        window.location.href = 'index.html';
+        // Redirect to login if no token is found
+        window.location.replace('index.html');
     } else {
-        // Reload the page from the server to avoid showing a cached page after logout
-        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
-            window.location.reload();
-        }
+        // Prevent back navigation to this page if logged out
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = function () {
+            if (!localStorage.getItem('sessionToken')) {
+                window.location.replace('index.html');
+            }
+        };
     }
 });
