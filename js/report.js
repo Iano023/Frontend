@@ -3,6 +3,14 @@ const pageSize = 15;
 let fullReportList = [];
 let selectedMonth = '';  // Global variable to store the currently selected month
 
+
+function formatDate(dateTimeString) {
+    // Parse the date string assuming it's in Asia/Manila timezone
+    const date = moment(dateTimeString).tz('Asia/Manila');
+    
+    return date.format('MMMM D, YYYY [at] h:mm:ss A');
+}
+
 // Display the logged-in admin's name
 function displayAdminName() {
     const fullname = localStorage.getItem('fullname');
@@ -97,32 +105,34 @@ function displayPaginatedReports() {
     updatePaginationControls();
 }
 
+
 // Display fetched reports in the table
 function displayReports(reports) {
     const tableBody = document.querySelector('tbody');
-    tableBody.innerHTML = ''; // Clear any existing rows
+    tableBody.innerHTML = '';
 
-    // Calculate the starting index based on the current page
     const startIndex = (currentPage - 1) * pageSize;
 
     reports.forEach((report, index) => {
         const row = document.createElement('tr');
-
-        // Calculate the row number (based on pagination)
         const rowNumber = startIndex + index + 1;
+        
+        // Format the date using the updated formatDate function
+        const formattedDate = formatDate(report.report_datetime);
 
         row.innerHTML = `
-            <td><strong>${rowNumber}.</strong></td>  <!-- Row number -->
-            <td>${report.Driver_name}</td>  <!-- Driver's name from DB -->
-            <td>${report.Plate_number}</td> <!-- Plate number from DB -->
-            <td>${report.ratings}</td>       <!-- Ratings from DB -->
-            <td>${new Date(report.report_datetime).toLocaleString()}</td>  <!-- Date and Time of report -->
-            <td>${report.Violations}</td>     <!-- Violations from DB -->
+            <td><strong>${rowNumber}.</strong></td>
+            <td>${report.Driver_name}</td>
+            <td>${report.Plate_number}</td>
+            <td>${report.ratings}</td>
+            <td>${formattedDate}</td>
+            <td>${report.Violations}</td>
+            <td>${report.reporter_name}</td>
         `;
 
         tableBody.appendChild(row);
     });
-} 
+}
 
 // Update the pagination controls
 function updatePaginationControls() {
@@ -176,8 +186,9 @@ function exportToExcel() {
         'Owner Name': report.Driver_name,
         'Franchise Number': report.Plate_number,
         'Ratings': report.ratings,
-        'Date and Time': new Date(report.report_datetime).toLocaleString(),
+        'Date and Time': report.report_datetime,
         'Report': report.Violations,
+        'Reporter':report.reporter_name,
     }));
 
     // Create a new workbook and worksheet
