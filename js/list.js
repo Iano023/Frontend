@@ -51,7 +51,11 @@ imageUpload.addEventListener("change", (event) => {
 });
 async function createPlaceholderImage() {
     try {
-        const response = await fetch('images/placeholder.jpg'); // Make sure this file exists in your project
+        // Use a base64 string for a simple placeholder image instead of trying to fetch a file
+        const base64Data = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
+        
+        // Convert base64 to blob
+        const response = await fetch(base64Data);
         const blob = await response.blob();
         return new File([blob], 'placeholder.jpg', { type: 'image/jpeg' });
     } catch (error) {
@@ -65,50 +69,61 @@ document.querySelector('#submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const plateNumber = document.querySelector('#plate').value.trim();
+    const driverName = document.querySelector('#driver').value.trim();
+    const brgy = document.querySelector('#brgy').value.trim();
+
+    // Validate required fields
+    if (!plateNumber || !driverName || !brgy) {
+        alert('Please fill in all required fields.');
+        return;
+    }
 
     // Check if plate number already exists in the driver list
     const isDuplicate = fullDriverList.some(driver => driver.Plate_number === plateNumber);
-
     if (isDuplicate) {
         alert('This Franchise Number already exists.');
-        location.reload();
-        return; // Prevent form submission
+        return;
     }
 
     const formData = new FormData();
     formData.append('plate', plateNumber);
-    formData.append('driver', document.querySelector('#driver').value.trim());
-    formData.append('brgy', document.querySelector('#brgy').value.trim());
+    formData.append('driver', driverName);
+    formData.append('brgy', brgy);
 
-    // Check if an image was uploaded
-    if (imageUpload.files[0]) {
-        formData.append('image', imageUpload.files[0]);
-    } else {
-        // Create and append placeholder image if no image was uploaded
-        const placeholderImage = await createPlaceholderImage();
-        if (placeholderImage) {
+    try {
+        // Handle image upload
+        if (imageUpload.files[0]) {
+            formData.append('image', imageUpload.files[0]);
+        } else {
+            const placeholderImage = await createPlaceholderImage();
+            if (!placeholderImage) {
+                throw new Error('Failed to create placeholder image');
+            }
             formData.append('image', placeholderImage);
         }
-    }
 
-    // Submit the form
-    fetch('https://triqride.onrender.com/api/list', {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => response.json())
-    .then(data => {
+        // Submit the form
+        const response = await fetch('https://triqride.onrender.com/api/list', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to add record');
+        }
+
         if (data.msg) {
             alert('Record added successfully!');
             location.reload();
         } else {
-            alert('Failed to add record.');
+            throw new Error('Failed to add record');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
-        alert('Error adding record.');
-    });
+        alert(`Error adding record: ${error.message}`);
+    }
 });
 
 // Fetch and display all users
