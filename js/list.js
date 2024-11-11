@@ -53,7 +53,7 @@ async function createPlaceholderImage() {
     try {
         const response = await fetch('images/placeholder.jpg'); // Make sure this file exists in your project
         const blob = await response.blob();
-        return new File([blob], 'placeholder.jpg', { type: 'image/jpeg' });
+        return new File([blob], 'images/placeholder.jpg', { type: 'image/jpeg' });
     } catch (error) {
         console.error('Error creating placeholder image:', error);
         return null;
