@@ -10,19 +10,32 @@ const imageUpload = document.querySelector("#imageUpload");
 const imagePreview = document.querySelector("#imagePreview");
 
 // Display the logged-in user's fullname
-function displayAdminName() {
-    const fullname = localStorage.getItem('fullname'); // Retrieve fullname from localStorage
-    const adminNameElement = document.getElementById('adminName');
+const adminName = document.getElementById('adminName');
+const adminRole = document.getElementById('adminRole');
 
-    if (fullname) {
-        adminNameElement.textContent = fullname; // Display fullname
-    } else {
-        adminNameElement.textContent = 'Admin'; 
+// Function to display admin info
+function displayAdminInfo() {
+    // Get stored fullname and role from localStorage
+    const fullname = localStorage.getItem('fullname');
+    const role = localStorage.getItem('userRole');
+
+    // Update the display
+    adminName.textContent = fullname || 'Unknown';
+    adminRole.textContent = role || 'Unknown Role';
+
+    // Check role and control sidebar visibility
+    const adminOnlyElements = document.querySelectorAll('.admin-only');
+
+    // Hide admin-only elements if the user is not a Head Admin
+    if (role !== 'Head Admin') {
+        adminOnlyElements.forEach(element => {
+            element.style.display = 'none';
+        });
     }
 }
 
 window.addEventListener('load', () => {
-    displayAdminName();
+    displayAdminInfo();
     getUsers();
 });
 
