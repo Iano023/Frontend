@@ -1,36 +1,35 @@
 document.getElementById('login-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
-
     try {
         const response = await fetch('https://triqride.onrender.com/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         });
-
         const data = await response.json();
-
-        const messageElem = document.getElementById('login-message');
+        
         if (response.ok) {
-            messageElem.style.color = 'green';
-            messageElem.innerText = data.message; // 'Login successful'
+            alert(data.message);  // Show success message as alert
 
-            // Store the full name and session token in localStorage
+            // Store user information in localStorage
             localStorage.setItem('fullname', data.fullname);
-            localStorage.setItem('sessionToken', data.token);  // Store session token
-
-            // Redirect the user to the protected report page
-            window.location.href = 'report.html';
+            localStorage.setItem('sessionToken', data.token);
+            localStorage.setItem('userRole', data.role);
+            
+            // Redirect based on role
+            if (data.role === 'Head Admin') {
+                sessionStorage.setItem('headAdminId', data.userId);
+                window.location.href = 'approve.html'; // Head Admin goes to approval page
+            } else {
+                window.location.href = 'chart.html'; // Regular Admin goes to dashboard
+            }
         } else {
-            messageElem.style.color = 'red';
-            messageElem.innerText = data.message; // 'Invalid username or password'
+            alert(data.message);
+            window.location.reload();  // Show error message as alert
         }
     } catch (error) {
-        document.getElementById('login-message').innerText = 'Error connecting to the server';
+        alert('Error connecting to the server');  // Show connection error as alert
     }
 });
