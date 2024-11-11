@@ -98,7 +98,7 @@ document.getElementById('create-account-form').addEventListener('submit', async 
                 headAdminBtn.textContent = 'Head Admin';
             }
 
-            // Redirect after a delay
+            
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 3000);
