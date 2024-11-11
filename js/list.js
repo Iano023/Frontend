@@ -49,9 +49,19 @@ imageUpload.addEventListener("change", (event) => {
         reader.readAsDataURL(file);
     }
 });
+async function createPlaceholderImage() {
+    try {
+        const response = await fetch('images/placeholder.jpg'); // Make sure this file exists in your project
+        const blob = await response.blob();
+        return new File([blob], 'placeholder.jpg', { type: 'image/jpeg' });
+    } catch (error) {
+        console.error('Error creating placeholder image:', error);
+        return null;
+    }
+}
 
 // Handle form submission
-document.querySelector('#submit-form').addEventListener('submit', (e) => {
+document.querySelector('#submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const plateNumber = document.querySelector('#plate').value.trim();
@@ -69,8 +79,19 @@ document.querySelector('#submit-form').addEventListener('submit', (e) => {
     formData.append('plate', plateNumber);
     formData.append('driver', document.querySelector('#driver').value.trim());
     formData.append('brgy', document.querySelector('#brgy').value.trim());
-    formData.append('image', imageUpload.files[0]); // Use imageUpload directly
 
+    // Check if an image was uploaded
+    if (imageUpload.files[0]) {
+        formData.append('image', imageUpload.files[0]);
+    } else {
+        // Create and append placeholder image if no image was uploaded
+        const placeholderImage = await createPlaceholderImage();
+        if (placeholderImage) {
+            formData.append('image', placeholderImage);
+        }
+    }
+
+    // Submit the form
     fetch('https://triqride.onrender.com/api/list', {
         method: 'POST',
         body: formData,
@@ -366,6 +387,7 @@ function toggleEditable(isEditable) {
     }
 }
 
+// Function to reset modal buttons to "Edit" button only
 function resetToEditState() {
     // Restore original values in case they were edited
     document.getElementById("modalOwnerName").textContent = originalData.Driver_name;
@@ -494,3 +516,20 @@ function toggleSidebar() {
         sidebarOptions.classList.remove('hidden');
     }
 }
+
+window.addEventListener('load', () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    
+    if (!sessionToken) {
+        // Redirect to login if no token is found
+        window.location.replace('index.html');
+    } else {
+        // Prevent back navigation to this page if logged out
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = function () {
+            if (!localStorage.getItem('sessionToken')) {
+                window.location.replace('index.html');
+            }
+        };
+    }
+});
