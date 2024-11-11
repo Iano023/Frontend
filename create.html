@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/create.css">
+    
 </head>
-
-<body>
-
-    <body> <img src="images/triqride.png" alt="Logo" class="logo">
-        <div class="container">
-            <h2>Create Account</h2>
-            <form id="create-account-form">
-                <input type="text" id="register-username" placeholder="Username" required>
-                <input type="text" id="register-fullname" placeholder="Full Name" required>
-                <input type="password" id="register-password" placeholder="Password" required>
-                <button type="submit">Create Account</button>
-            </form>
-            <p id="register-message" class="message"></p>
-
-            <div class="link">
-                <p>Already have an account? <a href="index.html">Login</a></p>
-            </div>
+<body> <img src="images/triqride.png" alt="Logo" class="logo">
+    <div class="container mt-5">
+        <h2>Create Account</h2>
+        <div class="d-flex justify-content-center mb-3">
+            <button type="button" class="role-button btn btn-outline-primary" id="btn-admin" onclick="selectRole('Admin')">Admin</button>
+            <button type="button" class="role-button btn btn-outline-secondary ms-2" id="btn-head-admin" onclick="selectRole('Head Admin')">Head Admin</button>
         </div>
 
-        <script src='js/create.js'></script>
-    </body>
+        <!-- Warning message displayed only if creating the Head Admin account -->
+        <div class="warning-message" id="head-admin-warning" style="display: none;">
+            Note: This option will only work once to create the initial Head Admin account.
+        </div>
 
+        <form id="create-account-form">
+            <input type="text" id="register-username" class="form-control my-1" placeholder="Username" required>
+            <input type="text" id="register-fullname" class="form-control my-1" placeholder="Full Name" required>
+            <input type="password" id="register-password" class="form-control my-1" placeholder="Password" required>
+
+
+            <button type="submit" class="btn btn-success">Create Account</button>
+        </form>
+
+        <p id="register-message" class="message mt-3"></p>
+        <div class="link mt-3">
+            <p>Already have an account? <a href="index.html">Login</a></p>
+        </div>
+    </div>
+
+    <script src="js/create.js"></script>
+</body>
 </html>
