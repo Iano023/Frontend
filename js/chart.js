@@ -28,8 +28,23 @@ const chartConfigs = {
                 title: { display: false }
             },
             scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Number of Reports' } },
-                x: { title: { display: true, text: 'Month' } }
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Reports'
+                    },
+                    ticks: {
+                        precision: 0, // This ensures no decimal places
+                        stepSize: 1   // Ensures steps of 1
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                }
             }
         }
     },
@@ -43,8 +58,23 @@ const chartConfigs = {
                 title: { display: false }
             },
             scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Number of Attendees' } },
-                x: { title: { display: true, text: 'Month' } }
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Attendees'
+                    },
+                    ticks: {
+                        precision: 0, // This ensures no decimal places
+                        stepSize: 1   // Ensures steps of 1
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                }
             }
         }
     }
@@ -57,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayAdminName();
 
     // Uncomment to enable automatic updates every 5 minutes
-    setInterval(fetchData, 5 * 60 * 1000);
+    setInterval(fetchData, 1 * 60 * 1000);
 });
 
 // Fetch Data from API and Update Dashboard
@@ -80,11 +110,18 @@ async function fetchData() {
 
 // Update Dashboard with New Data
 function updateDashboard(reportsData, seminarsData) {
-    // Process reports data as usual
-    const totalReports = reportsData.length;
-    const avgRating = calculateAverageRating(reportsData);
-    const recentReports = reportsData.filter(report => isRecent(report.report_datetime)).length;
-    const monthlyReportsData = aggregateMonthlyData(reportsData, 'report_datetime');
+    // Filter reports with violations for counting purposes only
+    const reportsWithViolations = reportsData.filter(report => {
+        return report.Violations && report.Violations.trim() !== '';
+    });
+
+    // Use all reports for rating calculation
+    const avgRating = calculateAverageRating(reportsData);  // Using original reportsData here
+
+    // Use filtered reports for violation-related counts
+    const totalReports = reportsWithViolations.length;
+    const recentReports = reportsWithViolations.filter(report => isRecent(report.report_datetime)).length;
+    const monthlyReportsData = aggregateMonthlyData(reportsWithViolations, 'report_datetime');
 
     // Update reports stats in the HTML
     document.getElementById('totalReports').textContent = totalReports;
@@ -129,8 +166,8 @@ function calculateAverageRating(reports) {
 function isRecent(dateStr) {
     const date = new Date(dateStr);
     const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    return diffDays <= 30;
+    const diffHours = (now - date) / (1000 * 60 * 60); // Difference in hours
+    return diffHours <= 24; // 24 hours = 1 day
 }
 
 // Aggregate Monthly Data (labels and data arrays)
@@ -150,9 +187,13 @@ function aggregateMonthlyData(data, dateField) {
 function updateChart(chartId, labels, data, label) {
     const chartElement = document.getElementById(chartId);
     const chartInstance = Chart.getChart(chartElement);
+
+    // Round the data to whole numbers
+    const roundedData = data.map(value => Math.round(value));
+
     if (chartInstance) {
         chartInstance.data.labels = labels;
-        chartInstance.data.datasets[0].data = data;
+        chartInstance.data.datasets[0].data = roundedData;
         chartInstance.update();
     } else {
         new Chart(chartElement, {
@@ -161,7 +202,7 @@ function updateChart(chartId, labels, data, label) {
                 labels: labels,
                 datasets: [{
                     label: label,
-                    data: data,
+                    data: roundedData,
                     backgroundColor: chartId === 'reportsChart' ? '#FF5349' : '#4BB543'
                 }]
             },
@@ -176,12 +217,43 @@ function initializeTabs() {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
+
             tab.classList.add('active');
             document.getElementById(tab.dataset.tab).classList.add('active');
         });
     });
 }
+
+function logout() {
+    localStorage.removeItem('sessionToken');
+
+    // Clear browser cache to prevent back navigation to cached pages
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+
+    // Redirect to login page and prevent back button from returning to protected pages
+    window.location.replace('index.html');
+}
+
+window.addEventListener('load', () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+
+    if (!sessionToken) {
+        // Redirect to login if no token is found
+        window.location.replace('index.html');
+    } else {
+        // Prevent back navigation to this page if logged out
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = function () {
+            if (!localStorage.getItem('sessionToken')) {
+                window.location.replace('index.html');
+            }
+        };
+    }
+});
 
 
 
