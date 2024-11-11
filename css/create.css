@@ -1,98 +1,156 @@
 body {
-    background-image: url('../images/municipalhall.jpg');
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    margin: 0;
-    display: flex; 
-    justify-content: center;
-    align-items: center; 
     background-color: #f0f0f0;
-    position: relative; /* Added to allow z-index to work properly */
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Added this */
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
 }
 
 body::before {
-    content: ""; 
-    position: absolute;
+    content: "";
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('../images/municipalhall.jpg'); 
-    background-size: cover; 
-    background-position: center; 
-    filter: blur(3px); 
-    z-index: 1; 
-}   
-
+    background-image: url('../Images/municipalhall.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(3px);
+    z-index: 1;
+}
 
 .container {
     max-width: 400px;
-    margin: auto;
-    padding: 15px; 
-    border: 1px solid #ccc; 
-    border-radius: 8px; 
-    background-color: white; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
-    position: relative; 
-    z-index: 2; 
+    width: 90%;
+    padding: 2rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 2;
+    /* Removed margin-top */
 }
 
+
 .logo {
-    display: block;
-    margin: 0 auto 20px;
-    width: 300px; /* Adjust the width as needed */
-    height: auto; /* Maintain aspect ratio */
-    position: absolute;
-    top: 60px;
+    width: 230px;
+    height: auto;
+    position: fixed;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 3;
+    margin: 0;
 }
 
 h2 {
-    text-align: center; 
-    margin-bottom: 20px; 
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Add this to your existing CSS */
+.warning-message {
+    color: #dc3545; /* Bootstrap's danger red color */
+    background-color: rgba(220, 53, 69, 0.1); /* Light red background */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #dc3545;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Optional animation for when the warning appears */
+#head-admin-warning {
+    transition: all 0.3s ease;
+}
+
+#head-admin-warning.show {
+    opacity: 1;
+}
+
+#head-admin-warning.hide {
+    opacity: 0;
+}
+
+.role-button {
+    min-width: 120px;
+    margin: 0 0.5rem;
+}
+
+#create-account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 input {
     width: 100%;
-    padding: 10px;
-    margin: 8px 0;
+    padding: 0.75rem;
+    margin: 0;
     box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
-button {
-    width: 50%;
-    padding: 10px;
+button[type="submit"] {
+    width: 100%;
+    padding: 0.75rem;
     background-color: #4CAF50;
     color: white;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-    margin: auto;
-    display: block;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-top: 0.5rem;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #2188ce;
 }
 
 .message {
     color: red;
+    text-align: center;
+    margin: 1rem 0;
 }
 
 .link {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 1rem;
 }
 
 a {
     text-decoration: none;
     color: #349237;
+    font-weight: 500;
 }
 
 a:hover {
     text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        padding: 1.5rem;
+    }
+    
+    .logo {
+        width: 250px;
+        top: -120px; /* Adjusted for mobile */
+    }
 }
