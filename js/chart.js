@@ -10,10 +10,28 @@ function toggleSidebar() {
 }
 
 // Display admin name
-function displayAdminName() {
+const adminName = document.getElementById('adminName');
+const adminRole = document.getElementById('adminRole');
+
+// Function to display admin info
+function displayAdminInfo() {
+    // Get stored fullname and role from localStorage
     const fullname = localStorage.getItem('fullname');
-    const adminNameElement = document.getElementById('adminName');
-    adminNameElement.textContent = fullname || 'Admin';
+    const role = localStorage.getItem('userRole');
+
+    // Update the display
+    adminName.textContent = fullname || 'Unknown';
+    adminRole.textContent = role || 'Unknown Role';
+
+    // Check role and control sidebar visibility
+    const adminOnlyElements = document.querySelectorAll('.admin-only');
+
+    // Hide admin-only elements if the user is not a Head Admin
+    if (role !== 'Head Admin') {
+        adminOnlyElements.forEach(element => {
+            element.style.display = 'none';
+        });
+    }
 }
 
 // Chart configurations
@@ -84,7 +102,7 @@ const chartConfigs = {
 document.addEventListener('DOMContentLoaded', () => {
     initializeTabs();
     fetchData();
-    displayAdminName();
+    displayAdminInfo();
 
     // Uncomment to enable automatic updates every 5 minutes
     setInterval(fetchData, 1 * 60 * 1000);
