@@ -19,7 +19,7 @@ function displayAdminInfo() {
     const fullname = localStorage.getItem('fullname');
     const role = localStorage.getItem('userRole');
 
-    // Update the display
+
     adminName.textContent = fullname || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
