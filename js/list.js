@@ -103,19 +103,14 @@ document.querySelector('#submit-form').addEventListener('submit', async (e) => {
     formData.append('driver', driverName);
     formData.append('brgy', brgy);
 
-    try {
-        // Handle image upload
-        if (imageUpload.files[0]) {
-            formData.append('image', imageUpload.files[0]);
-        } else {
-            const placeholderImage = await createPlaceholderImage();
-            if (!placeholderImage) {
-                throw new Error('Failed to create placeholder image');
-            }
-            formData.append('image', placeholderImage);
-        }
+    // Skip image upload and use a flag in the image field
+    if (imageUpload.files[0]) {
+        formData.append('image', imageUpload.files[0]);
+    } else {
+        formData.append('image', 'no_image'); // This will be handled as a special case
+    }
 
-        // Submit the form
+    try {
         const response = await fetch('https://triqride.onrender.com/api/list', {
             method: 'POST',
             body: formData
@@ -176,14 +171,16 @@ function updateStarRating(rating) {
 function displayUsers(data) {
     let html = "";
     data.forEach(element => {
-        const imageSrc = element.Image ? element.Image : 'placeholder.jpg'; // Default image
-        const overallRating = element.averageRating ? element.averageRating.toFixed(2) : 'Not available'; // Use the averageRating from the backend
+        // Check if image exists and create appropriate HTML
+        const imageHtml = element.Image 
+            ? `<img class="clickable-image" src="${element.Image}" alt="Driver Image" style="max-width: 100px; height: auto;" />`
+            : `<div class="no-image-placeholder">No Image Available</div>`;
 
         html += `
             <tr>
                 <td><strong>${element.id}.</strong></td>
                 <td class="text-align">
-                    <img class="clickable-image" src="${imageSrc}" alt="Image" style="max-width: 100px; height: auto;" />
+                    ${imageHtml}
                 </td>
                 <td class="text-center">${element.Driver_name}</td>
                 <td class="text-center">${element.Plate_number}</td>
@@ -192,8 +189,8 @@ function displayUsers(data) {
                             data-driver="${element.Driver_name}" 
                             data-franchise="${element.Plate_number}" 
                             data-barangay="${element.Barangay}" 
-                            data-image="${imageSrc}" 
-                            data-overall-rating="${overallRating}">
+                            data-image="${element.Image || ''}" 
+                            data-overall-rating="${element.averageRating ? element.averageRating.toFixed(2) : 'Not available'}">
                         Preview Profile
                     </button>
                 </td>
@@ -223,7 +220,7 @@ function displayUsers(data) {
     document.querySelectorAll('.profile-preview-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const franchiseNumber = event.target.getAttribute('data-franchise');
-
+    
             // Fetch driver and report details
             fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
                 .then(response => response.json())
@@ -231,51 +228,61 @@ function displayUsers(data) {
                     if (data.success && data.data) {
                         const driverData = data.data;
                         currentEditingId = driverData.id; // Store the current driver ID
-
+    
                         // Store original data
                         originalData = {
                             Driver_name: driverData.Driver_name,
                             Plate_number: driverData.Plate_number,
                             Barangay: driverData.Barangay
                         };
-
-                        // Update modal with driver details
+    
+                        // Update basic modal information
                         document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
                         document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
                         document.getElementById('modalBarangay').textContent = driverData.Barangay;
-                        document.getElementById('modalDriverImage').src = driverData.Image ? driverData.Image : 'placeholder.jpg';
-
-                        // Handle ratings
-                        document.getElementById('modalOverallRating').textContent = driverData.averageRating
-                            ? driverData.averageRating.toFixed(2)
-                            : 'Not available';
-                        
-
-                        const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
-                        const ratingCount = driverData.ratingCount || 0; // Default to 0 if undefined
     
-                        // Set overall rating and rating count
+                        // Handle image display in modal
+                        const modalImage = document.getElementById('modalDriverImage');
+                        // Remove any existing no-image message
+                        const existingMessage = document.querySelector('.no-image-message');
+                        if (existingMessage) {
+                            existingMessage.remove();
+                        }
+    
+                        if (driverData.Image) {
+                            modalImage.src = driverData.Image;
+                            modalImage.style.display = 'block';
+                        } else {
+                            modalImage.style.display = 'none';
+                            // Add a message when no image is available
+                            modalImage.insertAdjacentHTML('afterend', 
+                                '<div class="no-image-message">No Image Available</div>');
+                        }
+    
+                        // Handle ratings
+                        const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
+                        const ratingCount = driverData.ratingCount || 0;
+    
                         document.getElementById('modalOverallRating').textContent = overallRating;
                         document.getElementById('modalRatingCount').textContent = ratingCount;
     
                         // Update star rating visually
                         updateStarRating(Math.round(driverData.averageRating || 0));
-
-                        // Process valid violations only
+    
+                        // Process violations
                         const violationHistory = driverData.ViolationHistory ? driverData.ViolationHistory.split(', ') : [];
                         const validViolations = violationHistory.filter(violation => {
                             const [violationText, violationDateTime] = violation.split(' - ');
-                            return violationText && violationDateTime; // Only count if both text and date exist
+                            return violationText && violationDateTime;
                         });
-
-                        // Display the count of valid violations
+    
+                        // Update violations display
                         document.getElementById('modalTotalViolations').textContent = validViolations.length;
-
-                        // Display each valid violation in the list
+    
+                        // Display violations list
                         const violationsList = document.getElementById('modalViolationsList');
-                        violationsList.innerHTML = ''; // Clear the list first
+                        violationsList.innerHTML = '';
                         if (validViolations.length > 0) {
-                            violationsList.innerHTML = ''; // Clear the list
                             validViolations.forEach((violation, index) => {
                                 const [violationText, violationDateTime, reporterName] = violation.split(' - ');
                                 const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
@@ -290,8 +297,8 @@ function displayUsers(data) {
                             li.textContent = 'No violations reported';
                             violationsList.appendChild(li);
                         }
-
-                        // Show the modal with the updated data
+    
+                        // Show the modal
                         const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
                         profileModal.show();
                     } else {
@@ -335,36 +342,39 @@ document.getElementById("cancelBtn").addEventListener("click", function () {
     document.getElementById("cancelBtn").classList.add("d-none");
 });
 
-document.getElementById("saveChangesBtn").addEventListener("click", function () {
+document.getElementById("saveChangesBtn").addEventListener("click", async function () {
     if (!currentEditingId) {
         alert('Error: No driver selected for editing');
         return;
     }
 
-    const updatedData = {
-        id: currentEditingId, 
-        Driver_name: document.getElementById("modalOwnerName").querySelector('input').value.trim(),
-        Plate_number: document.getElementById("modalFranchiseNumber").querySelector('input').value.trim(),
-        Barangay: document.getElementById("modalBarangay").querySelector('input').value.trim()
-    };
+    // Create FormData object to handle file upload
+    const formData = new FormData();
+    
+    // Add text data
+    formData.append('id', currentEditingId);
+    formData.append('Driver_name', document.getElementById("modalOwnerName").querySelector('input').value.trim());
+    formData.append('Plate_number', document.getElementById("modalFranchiseNumber").querySelector('input').value.trim());
+    formData.append('Barangay', document.getElementById("modalBarangay").querySelector('input').value.trim());
+    
+    // Add image if one was selected
+    const imageInput = document.getElementById('modalImageUpload');
+    if (imageInput && imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+    }
 
-    console.log('Sending update request with data:', updatedData);
+    try {
+        const response = await fetch('https://triqride.onrender.com/api/driver/update', {
+            method: 'PUT',
+            body: formData // Send as FormData instead of JSON
+        });
 
-    fetch(`https://triqride.onrender.com/api/driver/update`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData)
-    })
-    .then(response => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response from server:', data);
+
+        const data = await response.json();
+        
         if (data.success) {
             alert('Driver information updated successfully!');
             getUsers(); // Refresh the driver list
@@ -373,11 +383,10 @@ document.getElementById("saveChangesBtn").addEventListener("click", function () 
         } else {
             throw new Error(data.message || 'Unknown error');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
         alert('Error updating driver information: ' + error.message);
-    });
+    }
 
     toggleEditable(false);
     document.getElementById("editBtn").classList.remove("d-none");
@@ -390,6 +399,7 @@ function toggleEditable(isEditable) {
     const modalOwnerName = document.getElementById("modalOwnerName");
     const modalFranchiseNumber = document.getElementById("modalFranchiseNumber");
     const modalBarangay = document.getElementById("modalBarangay");
+    const imageContainer = document.querySelector(".image-container");
     
     if (isEditable) {
         // Store current values
@@ -401,8 +411,56 @@ function toggleEditable(isEditable) {
         modalOwnerName.innerHTML = `<input type="text" class="edit-input" value="${ownerValue}">`;
         modalFranchiseNumber.innerHTML = `<input type="text" class="edit-input" value="${franchiseValue}">`;
         modalBarangay.innerHTML = `<input type="text" class="edit-input" value="${barangayValue}">`;
+        
+        // Add change photo button after the image
+        const changePhotoButton = document.createElement('button');
+        changePhotoButton.className = 'btn btn-primary mt-2';
+        changePhotoButton.style.width = '100%';
+        changePhotoButton.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+        
+        // Create hidden file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'modalImageUpload';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        
+        // Add click handler to button
+        changePhotoButton.onclick = (e) => {
+            e.preventDefault();
+            fileInput.click();
+        };
+        
+        // Add file input change handler
+        fileInput.onchange = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const modalImage = document.getElementById('modalDriverImage');
+                    modalImage.src = e.target.result;
+                    modalImage.style.display = 'block';
+                    
+                    // Remove any "No Image Available" message if it exists
+                    const noImageMsg = imageContainer.querySelector('.no-image-message');
+                    if (noImageMsg) noImageMsg.remove();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        
+        // Add elements to container
+        imageContainer.appendChild(fileInput);
+        imageContainer.appendChild(changePhotoButton);
+        
     } else {
-        // If we're disabling editing, just ensure we're showing text content
+        // Remove added elements when not in edit mode
+        const changePhotoButton = imageContainer.querySelector('.btn');
+        const fileInput = imageContainer.querySelector('input[type="file"]');
+        if (changePhotoButton) changePhotoButton.remove();
+        if (fileInput) fileInput.remove();
+        
+        // Restore text content from input values
         if (modalOwnerName.querySelector('input')) {
             modalOwnerName.textContent = modalOwnerName.querySelector('input').value;
         }
@@ -417,6 +475,12 @@ function toggleEditable(isEditable) {
 
 // Function to reset modal buttons to "Edit" button only
 function resetToEditState() {
+    // Remove any image upload elements
+    const imageUploadContainer = document.querySelector('.image-upload-container');
+    if (imageUploadContainer) {
+        imageUploadContainer.remove();
+    }
+
     // Restore original values in case they were edited
     document.getElementById("modalOwnerName").textContent = originalData.Driver_name;
     document.getElementById("modalFranchiseNumber").textContent = originalData.Plate_number;
