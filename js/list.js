@@ -19,7 +19,6 @@ function displayAdminInfo() {
     const fullname = localStorage.getItem('fullname');
     const role = localStorage.getItem('userRole');
 
-    // Update the display
     adminName.textContent = fullname || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
@@ -66,7 +65,7 @@ async function createPlaceholderImage() {
     try {
         // Use a base64 string for a simple placeholder image instead of trying to fetch a file
         const base64Data = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
-        
+
         // Convert base64 to blob
         const response = await fetch(base64Data);
         const blob = await response.blob();
@@ -170,12 +169,7 @@ function updateStarRating(rating) {
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
-    const startIndex = (currentPage - 1) * pageSize;
-
-    data.forEach((element, index) => {
-        // Calculate the sequential row number
-        const rowNumber = startIndex + index + 1;
-
+    data.forEach(element => {
         // Check if image exists and create appropriate HTML
         const imageHtml = element.Image 
             ? `<img class="clickable-image" src="${element.Image}" alt="Driver Image" style="max-width: 100px; height: auto;" />`
@@ -183,7 +177,7 @@ function displayUsers(data) {
 
         html += `
             <tr>
-                <td><strong>${rowNumber}.</strong></td>
+                <td><strong>${element.id}.</strong></td>
                 <td class="text-align">
                     ${imageHtml}
                 </td>
@@ -225,7 +219,7 @@ function displayUsers(data) {
     document.querySelectorAll('.profile-preview-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const franchiseNumber = event.target.getAttribute('data-franchise');
-    
+
             // Fetch driver and report details
             fetch(`https://triqride.onrender.com/api/driver/${franchiseNumber}`, { mode: 'cors' })
                 .then(response => response.json())
@@ -233,19 +227,19 @@ function displayUsers(data) {
                     if (data.success && data.data) {
                         const driverData = data.data;
                         currentEditingId = driverData.id; // Store the current driver ID
-    
+
                         // Store original data
                         originalData = {
                             Driver_name: driverData.Driver_name,
                             Plate_number: driverData.Plate_number,
                             Barangay: driverData.Barangay
                         };
-    
+
                         // Update basic modal information
                         document.getElementById('modalOwnerName').textContent = driverData.Driver_name;
                         document.getElementById('modalFranchiseNumber').textContent = driverData.Plate_number;
                         document.getElementById('modalBarangay').textContent = driverData.Barangay;
-    
+
                         // Handle image display in modal
                         const modalImage = document.getElementById('modalDriverImage');
                         // Remove any existing no-image message
@@ -253,7 +247,7 @@ function displayUsers(data) {
                         if (existingMessage) {
                             existingMessage.remove();
                         }
-    
+
                         if (driverData.Image) {
                             modalImage.src = driverData.Image;
                             modalImage.style.display = 'block';
@@ -263,27 +257,27 @@ function displayUsers(data) {
                             modalImage.insertAdjacentHTML('afterend', 
                                 '<div class="no-image-message">No Image Available</div>');
                         }
-    
+
                         // Handle ratings
                         const overallRating = driverData.averageRating ? driverData.averageRating.toFixed(2) : 'Not available';
                         const ratingCount = driverData.ratingCount || 0;
-    
+
                         document.getElementById('modalOverallRating').textContent = overallRating;
                         document.getElementById('modalRatingCount').textContent = ratingCount;
-    
+
                         // Update star rating visually
                         updateStarRating(Math.round(driverData.averageRating || 0));
-    
+
                         // Process violations
                         const violationHistory = driverData.ViolationHistory ? driverData.ViolationHistory.split(', ') : [];
                         const validViolations = violationHistory.filter(violation => {
                             const [violationText, violationDateTime] = violation.split(' - ');
                             return violationText && violationDateTime;
                         });
-    
+
                         // Update violations display
                         document.getElementById('modalTotalViolations').textContent = validViolations.length;
-    
+
                         // Display violations list
                         const violationsList = document.getElementById('modalViolationsList');
                         violationsList.innerHTML = '';
@@ -291,7 +285,7 @@ function displayUsers(data) {
                             validViolations.forEach((violation, index) => {
                                 const [violationText, violationDateTime, reporterName] = violation.split(' - ');
                                 const formattedDateTime = formatTo12HourClock(new Date(violationDateTime));
-                        
+
                                 const li = document.createElement('li');
                                 li.innerHTML = `${index + 1}. ${violationText} (Date: ${formattedDateTime})<br>
                                                <span style="margin-left: 20px; color: #666;">Reported By: ${reporterName || 'Anonymous'}</span>`;
@@ -302,7 +296,7 @@ function displayUsers(data) {
                             li.textContent = 'No violations reported';
                             violationsList.appendChild(li);
                         }
-    
+
                         // Show the modal
                         const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
                         profileModal.show();
@@ -355,13 +349,13 @@ document.getElementById("saveChangesBtn").addEventListener("click", async functi
 
     // Create FormData object to handle file upload
     const formData = new FormData();
-    
+
     // Add text data
     formData.append('id', currentEditingId);
     formData.append('Driver_name', document.getElementById("modalOwnerName").querySelector('input').value.trim());
     formData.append('Plate_number', document.getElementById("modalFranchiseNumber").querySelector('input').value.trim());
     formData.append('Barangay', document.getElementById("modalBarangay").querySelector('input').value.trim());
-    
+
     // Add image if one was selected
     const imageInput = document.getElementById('modalImageUpload');
     if (imageInput && imageInput.files[0]) {
@@ -379,7 +373,7 @@ document.getElementById("saveChangesBtn").addEventListener("click", async functi
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
             alert('Driver information updated successfully!');
             getUsers(); // Refresh the driver list
@@ -405,37 +399,37 @@ function toggleEditable(isEditable) {
     const modalFranchiseNumber = document.getElementById("modalFranchiseNumber");
     const modalBarangay = document.getElementById("modalBarangay");
     const imageContainer = document.querySelector(".image-container");
-    
+
     if (isEditable) {
         // Store current values
         const ownerValue = modalOwnerName.textContent;
         const franchiseValue = modalFranchiseNumber.textContent;
         const barangayValue = modalBarangay.textContent;
-        
+
         // Replace spans with input fields
         modalOwnerName.innerHTML = `<input type="text" class="edit-input" value="${ownerValue}">`;
         modalFranchiseNumber.innerHTML = `<input type="text" class="edit-input" value="${franchiseValue}">`;
         modalBarangay.innerHTML = `<input type="text" class="edit-input" value="${barangayValue}">`;
-        
+
         // Add change photo button after the image
         const changePhotoButton = document.createElement('button');
         changePhotoButton.className = 'btn btn-primary mt-2';
         changePhotoButton.style.width = '100%';
         changePhotoButton.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-        
+
         // Create hidden file input
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.id = 'modalImageUpload';
         fileInput.accept = 'image/*';
         fileInput.style.display = 'none';
-        
+
         // Add click handler to button
         changePhotoButton.onclick = (e) => {
             e.preventDefault();
             fileInput.click();
         };
-        
+
         // Add file input change handler
         fileInput.onchange = function(event) {
             const file = event.target.files[0];
@@ -445,7 +439,7 @@ function toggleEditable(isEditable) {
                     const modalImage = document.getElementById('modalDriverImage');
                     modalImage.src = e.target.result;
                     modalImage.style.display = 'block';
-                    
+
                     // Remove any "No Image Available" message if it exists
                     const noImageMsg = imageContainer.querySelector('.no-image-message');
                     if (noImageMsg) noImageMsg.remove();
@@ -453,18 +447,18 @@ function toggleEditable(isEditable) {
                 reader.readAsDataURL(file);
             }
         };
-        
+
         // Add elements to container
         imageContainer.appendChild(fileInput);
         imageContainer.appendChild(changePhotoButton);
-        
+
     } else {
         // Remove added elements when not in edit mode
         const changePhotoButton = imageContainer.querySelector('.btn');
         const fileInput = imageContainer.querySelector('input[type="file"]');
         if (changePhotoButton) changePhotoButton.remove();
         if (fileInput) fileInput.remove();
-        
+
         // Restore text content from input values
         if (modalOwnerName.querySelector('input')) {
             modalOwnerName.textContent = modalOwnerName.querySelector('input').value;
@@ -496,7 +490,6 @@ function resetToEditState() {
 
     // Show the "Edit" button and hide the "Save" and "Cancel" buttons
     document.getElementById("editBtn").classList.remove("d-none");
-    document.getElementById("deleteBtn").classList.remove("d-none");
     document.getElementById("saveChangesBtn").classList.add("d-none");
     document.getElementById("cancelBtn").classList.add("d-none");
 }
@@ -591,58 +584,6 @@ document.getElementById('searchBar').addEventListener('keyup', function () {
         });
 });
 
-document.getElementById("confirmDeleteBtn").addEventListener("click", async function() {
-    if (!currentEditingId) {
-        alert('Error: No driver selected for deletion');
-        return;
-    }
-
-    try {
-        const response = await fetch('https://triqride.onrender.com/api/remove', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: currentEditingId
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.msg === 'Successfully deleted!') {
-            // Close both modals
-            const deleteConfirmModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
-            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
-            deleteConfirmModal.hide();
-            profileModal.hide();
-
-            // Refresh the driver list
-            getUsers();
-            
-            // Show success message
-            alert('Driver profile deleted successfully!');
-        } else {
-            throw new Error(data.error || 'Unknown error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error deleting driver profile: ' + error.message);
-    }
-});
-
-document.getElementById("deleteBtn").addEventListener("click", function() {
-    // Show the confirmation modal
-    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-    deleteConfirmModal.show();
-});
-
-
-
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -669,7 +610,7 @@ function toggleSidebar() {
 
 window.addEventListener('load', () => {
     const sessionToken = localStorage.getItem('sessionToken');
-    
+
     if (!sessionToken) {
         // Redirect to login if no token is found
         window.location.replace('index.html');
