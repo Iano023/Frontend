@@ -19,7 +19,7 @@ function displayAdminInfo() {
     const fullname = localStorage.getItem('fullname');
     const role = localStorage.getItem('userRole');
 
-
+    // Update the display
     adminName.textContent = fullname || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
@@ -170,7 +170,12 @@ function updateStarRating(rating) {
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
-    data.forEach(element => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    data.forEach((element, index) => {
+        // Calculate the sequential row number
+        const rowNumber = startIndex + index + 1;
+
         // Check if image exists and create appropriate HTML
         const imageHtml = element.Image 
             ? `<img class="clickable-image" src="${element.Image}" alt="Driver Image" style="max-width: 100px; height: auto;" />`
@@ -178,7 +183,7 @@ function displayUsers(data) {
 
         html += `
             <tr>
-                <td><strong>${element.id}.</strong></td>
+                <td><strong>${rowNumber}.</strong></td>
                 <td class="text-align">
                     ${imageHtml}
                 </td>
@@ -491,6 +496,7 @@ function resetToEditState() {
 
     // Show the "Edit" button and hide the "Save" and "Cancel" buttons
     document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("deleteBtn").classList.remove("d-none");
     document.getElementById("saveChangesBtn").classList.add("d-none");
     document.getElementById("cancelBtn").classList.add("d-none");
 }
@@ -584,6 +590,58 @@ document.getElementById('searchBar').addEventListener('keyup', function () {
             console.error('Error fetching search results:', error);
         });
 });
+
+document.getElementById("confirmDeleteBtn").addEventListener("click", async function() {
+    if (!currentEditingId) {
+        alert('Error: No driver selected for deletion');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://triqride.onrender.com/api/remove', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: currentEditingId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.msg === 'Successfully deleted!') {
+            // Close both modals
+            const deleteConfirmModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            deleteConfirmModal.hide();
+            profileModal.hide();
+
+            // Refresh the driver list
+            getUsers();
+            
+            // Show success message
+            alert('Driver profile deleted successfully!');
+        } else {
+            throw new Error(data.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting driver profile: ' + error.message);
+    }
+});
+
+document.getElementById("deleteBtn").addEventListener("click", function() {
+    // Show the confirmation modal
+    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    deleteConfirmModal.show();
+});
+
+
 
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
