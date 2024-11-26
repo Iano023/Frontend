@@ -43,7 +43,7 @@ body::before {
 
 
 .logo {
-    width: 230px;
+    width: 250px;
     height: auto;
     position: fixed;
     top: 20px;
@@ -51,16 +51,6 @@ body::before {
     transform: translateX(-50%);
     z-index: 3;
     margin: 0;
-}
-
-.form-container {
-    max-width: 400px; /* Set the form's maximum width */
-    margin: auto; /* Center the form on the page */
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a better look */
-    background-color: #fff; /* Background for the form */
 }
 
 h2 {
@@ -154,20 +144,13 @@ a:hover {
     text-decoration: underline;
 }
 
-.input-group .toggle-password-visibility {
-    border-left: none;
-}
-.input-group .toggle-password-visibility i {
-    cursor: pointer;
-}
-
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .container {
         width: 95%;
         padding: 1.5rem;
     }
-    
+
     .logo {
         width: 250px;
         top: -120px; /* Adjusted for mobile */
