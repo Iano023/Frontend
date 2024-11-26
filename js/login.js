@@ -11,25 +11,25 @@ document.getElementById('login-form').addEventListener('submit', async function 
         const data = await response.json();
         
         if (response.ok) {
-            alert(data.message);  // Show success message as alert
-
+            alert(data.message);
             // Store user information in localStorage
             localStorage.setItem('fullname', data.fullname);
             localStorage.setItem('sessionToken', data.token);
             localStorage.setItem('userRole', data.role);
+            localStorage.setItem('profileImage', data.profileImage); // Add this line
+            localStorage.setItem('userId', data.userId);
             
-            // Redirect based on role
             if (data.role === 'Head Admin') {
                 sessionStorage.setItem('headAdminId', data.userId);
-                window.location.href = 'approve.html'; // Head Admin goes to approval page
+                window.location.href = 'approve.html';
             } else {
-                window.location.href = 'chart.html'; // Regular Admin goes to dashboard
+                window.location.href = 'chart.html';
             }
         } else {
             alert(data.message);
-            window.location.reload();  // Show error message as alert
+            window.location.reload();
         }
     } catch (error) {
-        alert('Error connecting to the server');  // Show connection error as alert
+        alert('Error connecting to the server');
     }
 });
