@@ -64,12 +64,20 @@ function selectRole(role) {
     warningElement.style.display = role === 'Head Admin' ? 'block' : 'none';
 }
 
-document.getElementById('create-account-form').addEventListener('submit', async function(e) {
+document.getElementById('create-account-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (password !== confirmPassword) {
+        alert('Passwords do not match. Please try again.');
+        return;
+    }
+
+    // Proceed with account creation
     const username = document.getElementById('register-username').value;
     const fullname = document.getElementById('register-fullname').value;
-    const password = document.getElementById('register-password').value;
     const profileImage = document.getElementById('profile-image').files[0];
     const messageElement = document.getElementById('register-message');
 
@@ -118,5 +126,35 @@ document.getElementById('create-account-form').addEventListener('submit', async 
         console.error('Error:', error);
         messageElement.style.color = 'red';
         messageElement.textContent = 'Error connecting to the server';
+    }
+});
+
+
+document.querySelector('.toggle-password-visibility').addEventListener('click', () => {
+    const passwordField = document.getElementById('register-password');
+    const toggleIcon = document.getElementById('toggleRegisterPasswordIcon');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    }
+});
+
+// Toggle visibility for Confirm Password field
+document.querySelector('.toggle-password-visibility:last-of-type').addEventListener('click', () => {
+    const confirmPasswordField = document.getElementById('confirm-password');
+    const toggleIcon = document.getElementById('toggleConfirmPasswordIcon');
+    if (confirmPasswordField.type === 'password') {
+        confirmPasswordField.type = 'text';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    } else {
+        confirmPasswordField.type = 'password';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
     }
 });
