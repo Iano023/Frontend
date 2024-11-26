@@ -5,13 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"> 
 </head>
-<body> <img src="images/triqride.png" alt="Logo" class="logo">
+<body>
+    <img src="images/triqride.png" alt="Logo" class="logo">
     <div class="container">
         <h2>Login</h2>
         <form id="login-form">
             <input type="text" id="login-username" placeholder="Username" required>
-            <input type="password" id="login-password" placeholder="Password" required>
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder="Password" required>
+                <span class="input-group-text toggle-password-visibility">
+                    <i class="bi bi-eye-slash" id="toggleLoginPasswordIcon"></i>
+                </span>
+            </div>
             <button type="submit">Login</button>
         </form>
         <p id="login-message" class="message"></p>
@@ -19,6 +26,6 @@
             <p>Don't have an account? <a href="create.html">Create an account</a></p>
         </div>
     </div>
-    <script src ='js/login.js'></script>
+    <script src="js/login.js"></script>
 </body>
 </html>
