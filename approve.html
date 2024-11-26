@@ -52,21 +52,26 @@
     <div class="main-content">
         <div class="header">
             <h2>Admin Approval Requests</h2>
-            <div class="admin-section">
-                <div>
-                    <span class="admin-name" id="adminName">Loading...</span><br>
-                    <span class="admin-title" id="adminRole">Loading...</span>
+            <div class="admin-section dropdown">
+                <!-- Dropdown Trigger -->
+                    <img id="adminProfileImage" class="admin-profile-img rounded-circle" src="" alt="Admin Profile" style="width: 40px; height: 40px;">
+                    <div class="admin-info">
+                        <span class="admin-name fw-bold" id="adminName">Loading..</span>
+                        <span class="admin-title text-muted" id="adminRole">Loading../span>
+                    </div>
                 </div>
-            </div>
         </div>
-
+        
         <div class="table-container">
+            <div id="success-message" class="alert alert-success" style="display: none;"></div>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
             <h3 class="text-center my-4">Pending Admin Approvals</h3>
             <div id="approval-list" class="table-responsive">
                 <table class="table table-striped table-bordered align-middle">
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Admin Image</th>
                             <th>Admin Full Name</th>
                             <th>Admin Username</th>
                             <th>Request</th>
@@ -77,9 +82,20 @@
                     </tbody>
                 </table>
             </div>
-            <div id="success-message" class="alert alert-success" style="display: none;"></div>
-            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
         </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imagePreviewModal" class="preview-modal">
+        <div class="preview-content">
+            <span class="close-preview">&times;</span>
+            <img id="previewImage" class="preview-image" src="" alt="Admin Profile Preview">
+            <div class="preview-details">
+                <h4 id="previewName"></h4>
+                <p id="previewUsername"></p>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
