@@ -1,5 +1,18 @@
 let selectedRole = 'Admin'; // Default role selection
 
+document.getElementById('profile-image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('image-preview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px">`;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
     const headAdminBtn = document.getElementById('btn-head-admin');
 
@@ -51,40 +64,41 @@ function selectRole(role) {
     warningElement.style.display = role === 'Head Admin' ? 'block' : 'none';
 }
 
-document.getElementById('create-account-form').addEventListener('submit', async function (e) {
+document.getElementById('create-account-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const username = document.getElementById('register-username').value;
     const fullname = document.getElementById('register-fullname').value;
     const password = document.getElementById('register-password').value;
+    const profileImage = document.getElementById('profile-image').files[0];
     const messageElement = document.getElementById('register-message');
 
     messageElement.style.color = 'blue';
     messageElement.textContent = 'Creating account...';
 
     try {
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('fullname', fullname);
+        formData.append('password', password);
+        formData.append('role', selectedRole);
+        if (profileImage) {
+            formData.append('profileImage', profileImage);
+        }
+
         const endpoint = selectedRole === 'Head Admin'
             ? 'https://triqride.onrender.com/create-head-admin'
             : 'https://triqride.onrender.com/register';
 
         const response = await fetch(endpoint, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username,
-                fullname,
-                password,
-                role: selectedRole
-            })
+            body: formData
         });
 
         const data = await response.json();
 
         if (response.ok) {
             messageElement.style.color = 'green';
-
             if (selectedRole === 'Admin') {
                 alert('Admin account created! Please wait for Head Admin approval.');
                 messageElement.textContent = 'Account created successfully! Awaiting Head Admin approval.';
@@ -92,13 +106,7 @@ document.getElementById('create-account-form').addEventListener('submit', async 
                 alert('Head Admin account created successfully!');
                 messageElement.textContent = 'Head Admin account created successfully!';
                 localStorage.setItem('headAdminExists', 'true');
-
-                const headAdminBtn = document.getElementById('btn-head-admin');
-                headAdminBtn.disabled = true;
-                headAdminBtn.textContent = 'Head Admin';
             }
-
-            
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 3000);
