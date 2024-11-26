@@ -111,30 +111,54 @@ h2 {
     transition: margin-left 0.3s ease;
 }
 
+
 .main-content.shifted {
     margin-left: 220px;
 }
 
 .header {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0px 4px 2px -2px gray;
+    width: 100%;
+    position: relative;
 }
 
 .admin-section {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    gap: 15px;
 }
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 
 .admin-section img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin-left: 10px;
+}
+
+.admin-info {
+    display: flex;
+    flex-direction: column;
 }
 
 .admin-section .admin-name {
@@ -148,11 +172,11 @@ h2 {
 }
 
 .input-container {
-    margin-top: 20px;
     background-color: white;
     padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .input-container h3 {
@@ -183,11 +207,13 @@ h2 {
 }
 
 .table-container {
-    margin-top: 30px;
     background-color: white;
     padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
 }
+
 
 table {
     width: 100%;
@@ -217,6 +243,18 @@ table img {
 
 .hidden {
     display: none;
+}
+
+.search-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
 }
 
 star-rating {
@@ -273,4 +311,32 @@ star-rating {
     text-align: center;
     color: #666;
     margin: 10px 0;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-backdrop.show {
+    opacity: 0.7;
+  }
+
+  .profile-dimmed {
+    opacity: 0.7; /* Adjust the opacity as needed */
+    pointer-events: none; /* Prevent interaction when dimmed */
+    transition: opacity 0.3s ease; /* Smooth transition */
+}
+
+.dimmed-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 1; /* Ensure it is on top of the profile modal content */
+    pointer-events: none; /* Prevent interaction with the overlay */
 }
