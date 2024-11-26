@@ -2,6 +2,42 @@ let currentPage = 1; // Initialize to page 1
 const pageSize = 10; // Number of rows per page
 let fullSeminarList = []; // Store all seminar data
 
+function displayAdminInfo() {
+    // Get stored fullname and role from localStorage
+    const fullname = localStorage.getItem('fullname');
+    const role = localStorage.getItem('userRole');
+    const profileImage = localStorage.getItem('profileImage');
+
+    // Update the display
+    adminName.textContent = fullname || 'Unknown';
+    adminRole.textContent = role || 'Unknown Role';
+
+    // Check role and control sidebar visibility
+    const adminOnlyElements = document.querySelectorAll('.admin-only');
+    const profileImg = document.getElementById('adminProfileImage');
+    
+    if (profileImage) {
+        profileImg.src = profileImage; // Firebase Storage URL is already complete
+    } else {
+        // Set a default profile image using a data URI
+        profileImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+    }
+    
+    // Add error handler for image loading
+    profileImg.onerror = function() {
+        // Fallback to embedded SVG data URI if the Firebase image fails to load
+        this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+        this.onerror = null; // Prevent infinite loop
+    };
+
+    // Hide admin-only elements if the user is not a Head Admin
+    if (role !== 'Head Admin') {
+        adminOnlyElements.forEach(element => {
+            element.style.display = 'none';
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     displayAdminInfo();
     fetchSeminarData(); // Fetch seminar data when the page loads
@@ -14,29 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const adminName = document.getElementById('adminName');
-const adminRole = document.getElementById('adminRole');
-
-// Function to display admin info
-function displayAdminInfo() {
-    // Get stored fullname and role from localStorage
-    const fullname = localStorage.getItem('fullname');
-    const role = localStorage.getItem('userRole');
-
-    // Update the display
-    adminName.textContent = fullname || 'Unknown';
-    adminRole.textContent = role || 'Unknown Role';
-
-    // Check role and control sidebar visibility
-    const adminOnlyElements = document.querySelectorAll('.admin-only');
-
-    // Hide admin-only elements if the user is not a Head Admin
-    if (role !== 'Head Admin') {
-        adminOnlyElements.forEach(element => {
-            element.style.display = 'none';
-        });
-    }
-}
 
 function fetchSeminarData(searchTerm = '') {
     let url = 'https://triqride.onrender.com/api/seminar';
