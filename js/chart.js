@@ -10,14 +10,11 @@ function toggleSidebar() {
 }
 
 // Display admin name
-const adminName = document.getElementById('adminName');
-const adminRole = document.getElementById('adminRole');
-
-// Function to display admin info
 function displayAdminInfo() {
-    // Get stored fullname and role from localStorage
+
     const fullname = localStorage.getItem('fullname');
     const role = localStorage.getItem('userRole');
+    const profileImage = localStorage.getItem('profileImage');
 
     // Update the display
     adminName.textContent = fullname || 'Unknown';
@@ -25,6 +22,21 @@ function displayAdminInfo() {
 
     // Check role and control sidebar visibility
     const adminOnlyElements = document.querySelectorAll('.admin-only');
+    const profileImg = document.getElementById('adminProfileImage');
+    
+    if (profileImage) {
+        profileImg.src = profileImage; // Firebase Storage URL is already complete
+    } else {
+        // Set a default profile image using a data URI
+        profileImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+    }
+    
+    // Add error handler for image loading
+    profileImg.onerror = function() {
+        // Fallback to embedded SVG data URI if the Firebase image fails to load
+        this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+        this.onerror = null; // Prevent infinite loop
+    };
 
     // Hide admin-only elements if the user is not a Head Admin
     if (role !== 'Head Admin') {
@@ -53,8 +65,9 @@ const chartConfigs = {
                         text: 'Number of Reports'
                     },
                     ticks: {
-                        precision: 0, // This ensures no decimal places
-                        stepSize: 1   // Ensures steps of 1
+                        stepSize: 10,
+                        precision: 0,
+                        maxTicksLimit: 50
                     }
                 },
                 x: {
@@ -83,8 +96,9 @@ const chartConfigs = {
                         text: 'Number of Attendees'
                     },
                     ticks: {
-                        precision: 0, // This ensures no decimal places
-                        stepSize: 1   // Ensures steps of 1
+                        stepSize: 10,
+                        precision: 0,
+                        maxTicksLimit: 50
                     }
                 },
                 x: {
@@ -107,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Uncomment to enable automatic updates every 5 minutes
     setInterval(fetchData, 1 * 60 * 1000);
 });
+
 
 // Fetch Data from API and Update Dashboard
 async function fetchData() {
@@ -132,9 +147,11 @@ function updateDashboard(reportsData, seminarsData) {
     const reportsWithViolations = reportsData.filter(report => {
         return report.Violations && report.Violations.trim() !== '';
     });
+    console.log('Raw API response:', reportsData);
+    console.log('Filtered reports:', reportsWithViolations);
 
     // Use all reports for rating calculation
-    const avgRating = calculateAverageRating(reportsData);  // Using original reportsData here
+    const avgRating = calculateAverageRating(reportsData);
 
     // Use filtered reports for violation-related counts
     const totalReports = reportsWithViolations.length;
@@ -158,7 +175,6 @@ function updateDashboard(reportsData, seminarsData) {
 
     // Update seminars stats in the HTML
     document.getElementById('totalAttendees').textContent = totalAttendees;
-    document.getElementById('recentSeminars').textContent = seminarsData.length;
 
     // Update seminars chart
     updateChart('seminarChart', monthlySeminarsData.labels, monthlySeminarsData.data, 'Monthly Attendees');
@@ -169,9 +185,7 @@ function updateStats() {
     document.getElementById('totalReports').textContent = data.reports.total || 0;
     document.getElementById('avgRating').textContent = (data.reports.avgRating || 0).toFixed(2);
     document.getElementById('recentReports').textContent = data.reports.recentReports || 0;
-
     document.getElementById('totalAttendees').textContent = data.seminars.totalAttendees || 0;
-    document.getElementById('recentSeminars').textContent = data.seminars.recentSeminars || 0;
 }
 
 // Calculate Average Rating from Reports Data
@@ -195,6 +209,7 @@ function aggregateMonthlyData(data, dateField) {
         const month = new Date(item[dateField]).getMonth();
         monthlyData[month] = (monthlyData[month] || 0) + 1;
     });
+    console.log('Aggregated data:', monthlyData);
     return {
         labels: Object.keys(monthlyData).map(month => new Date(0, month).toLocaleString('en', { month: 'short' })),
         data: Object.values(monthlyData)
@@ -242,8 +257,129 @@ function initializeTabs() {
     });
 }
 
+function loadAdminProfile(userId) {
+    // Fetch user profile data from the server
+    fetch(`https://triqride.onrender.com/api/getProfile/${userId}`)
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((data) => {
+                    throw new Error(data.message || "Failed to fetch profile.");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            // Populate the modal fields with the fetched data
+            document.getElementById("editUsername").value = data.username || "";
+            document.getElementById("editFullname").value = data.fullname || "";
+            document.getElementById("editPassword").value = ""; // Leave password field blank
+        })
+        .catch((error) => {
+            console.error("Error loading profile:", error.message);
+        });
+}
+// Submit updated profile
+function saveProfileChanges(userId) {
+    const username = document.getElementById("editUsername").value;
+    const fullname = document.getElementById("editFullname").value;
+    const password = document.getElementById("editPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    // Basic validation
+    if (!username || !fullname || !password || !confirmPassword) {
+        alert("All fields are required.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    // Update profile via PUT request
+    fetch(`https://triqride.onrender.com/api/editProfile/${userId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, fullname, password }),
+    })
+        .then((response) => {
+            if (response.ok) {
+                // Update the fullname in localStorage
+                localStorage.setItem("fullname", fullname);
+
+                // Update the display
+                displayAdminInfo();
+
+                // Close the modal
+                const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                editProfileModal.hide();
+
+                alert("Profile updated successfully.");
+            } else {
+                return response.json().then((data) => {
+                    alert(data.message || "Failed to update profile.");
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error updating profile:", error);
+        });
+}
+
+
+document.querySelector('[data-bs-target="#editProfileModal"]').addEventListener("click", () => {
+    const userId = sessionStorage.getItem('headAdminId') || localStorage.getItem('userId'); // Retrieve the user ID from storage
+    if (userId) {
+        loadAdminProfile(userId);
+    } else {
+        console.error("User ID not found in storage");
+    }
+});
+
+// Add event listener for save button
+document.getElementById("saveProfileChangesButton").addEventListener("click", () => {
+    const userId = sessionStorage.getItem('headAdminId') || localStorage.getItem('userId'); // Retrieve the user ID from storage
+    if (userId) {
+        saveProfileChanges(userId);
+    } else {
+        console.error("User ID not found in storage");
+    }
+});
+
+document.querySelector('.toggle-password-visibility').addEventListener('click', () => {
+    const passwordField = document.getElementById('editPassword');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    }
+});
+
+document.querySelector('.toggle-confirm-password-visibility').addEventListener('click', () => {
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const toggleConfirmIcon = document.getElementById('toggleConfirmPasswordIcon');
+    if (confirmPasswordField.type === 'password') {
+        confirmPasswordField.type = 'text';
+        toggleConfirmIcon.classList.remove('bi-eye-slash');
+        toggleConfirmIcon.classList.add('bi-eye');
+    } else {
+        confirmPasswordField.type = 'password';
+        toggleConfirmIcon.classList.remove('bi-eye');
+        toggleConfirmIcon.classList.add('bi-eye-slash');
+    }
+});
+
 function logout() {
     localStorage.removeItem('sessionToken');
+    sessionStorage.removeItem('headAdminId');
+    localStorage.removeItem('userId');
 
     // Clear browser cache to prevent back navigation to cached pages
     if ('caches' in window) {
@@ -272,7 +408,3 @@ window.addEventListener('load', () => {
         };
     }
 });
-
-
-
-
