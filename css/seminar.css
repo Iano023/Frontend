@@ -120,22 +120,45 @@ body {
 .admin-section {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    gap: 15px;
 }
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+
 .admin-section img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin-left: 10px;
 }
+
+.admin-info {
+    display: flex;
+    flex-direction: column;
+}
+
 .admin-section .admin-name {
     font-weight: bold;
     color: #e74c3c;
 }
+
 .admin-section .admin-title {
     font-size: 12px;
     color: gray;
 }
+
 .table-container {
     margin-top: 30px;
     background-color: white;
@@ -159,7 +182,4 @@ table th {
 .hidden {
     display: none;
 }
-
-
-
 
