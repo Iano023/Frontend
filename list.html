@@ -56,14 +56,19 @@
 
     <div class="main-content" id="main-content">
         <div class="header">
-            <h2>Drivers List</h2>
-            <div class="admin-section">
-                <div>
-                    <span class="admin-name" id="adminName">Loading...</span><br>
-                    <span class="admin-title" id="adminRole">Loading...</span>
+            <h2>Analytics Dashboard</h2>
+            <div class="admin-section ">
+
+                <img id="adminProfileImage" class="admin-profile-img rounded-circle" src="" alt="Admin Profile"
+                    style="width: 40px; height: 40px;">
+                <div class="admin-info">
+                    <span class="admin-name fw-bold" id="adminName">Loading..</span>
+                    <span class="admin-title text-muted" id="adminRole">Loading..</span>
                 </div>
             </div>
         </div>
+
+
 
         <div class="input-container">
             <h3>Add Driver</h3>
@@ -178,15 +183,34 @@
                     </ul>
                 </div>
 
-                
+                <!-- Edit Button -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="editBtn">Edit</button>
                     <button type="button" class="btn btn-success d-none" id="saveChangesBtn">Save</button>
                     <button type="button" class="btn btn-danger d-none" id="cancelBtn">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
+                </div>
+
+                <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-body text-center py-5">
+                                <h4 class="mb-4">Are you sure you want to delete this driver's profile?</h4>
+                                <p class="mb-5">This action cannot be undone.</p>
+                                <div class="d-flex justify-content-center">
+                                    <button type="button" class="btn btn-danger me-3"
+                                        id="confirmDeleteBtn">Delete</button>
+                                    <button type="button" class="btn btn-secondary me-3"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
