@@ -144,13 +144,20 @@ a:hover {
     text-decoration: underline;
 }
 
+.input-group .toggle-password-visibility {
+    border-left: none;
+}
+.input-group .toggle-password-visibility i {
+    cursor: pointer;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .container {
         width: 95%;
         padding: 1.5rem;
     }
-
+    
     .logo {
         width: 250px;
         top: -120px; /* Adjusted for mobile */
