@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="css/seminar.css">
 </head>
+
 <body>
     <div class="sidebar" id="sidebar">
         <div class="option-icon" onclick="toggleSidebar()">
@@ -50,14 +52,16 @@
             </ul>
         </div>
     </div>
-    
+
     <div class="main-content">
         <div class="header">
-            <h2>Probationary Seminar List</h2>
-            <div class="admin-section">
-                <div>
-                    <span class="admin-name" id="adminName">Loading...</span><br>
-                    <span class="admin-title" id="adminRole">Loading...</span>
+            <h2>Probationary Seminar Lis</h2>
+            <div class="admin-section dropdown">
+                <img id="adminProfileImage" class="admin-profile-img rounded-circle" src="" alt="Admin Profile"
+                    style="width: 40px; height: 40px;">
+                <div class="admin-info">
+                    <span class="admin-name fw-bold" id="adminName">Loading..</span>
+                    <span class="admin-title text-muted" id="adminRole">Loading..</span>
                 </div>
             </div>
         </div>
@@ -68,29 +72,30 @@
                         style="width: 20%; padding: 5px;" />
                 </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th class="text-align">Owner</th>
-                        <th class="text-align">Franchise Number</th>
-                        <th class="text-align">Attendance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            <div id="pagination" style="margin-top: 20px; text-align: center;">
-                <button id="prevPage" class="btn btn-secondary" disabled>Previous</button>
-                <span id="pageInfo">Page 1</span>
-                <button id="nextPage" class="btn btn-secondary">Next</button>
-            </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th class="text-align">Owner</th>
+                                <th class="text-align">Franchise Number</th>
+                                <th class="text-align">Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="pagination" style="margin-top: 20px; text-align: center;">
+                        <button id="prevPage" class="btn btn-secondary" disabled>Previous</button>
+                        <span id="pageInfo">Page 1</span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
         </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-    <script src="js/seminar.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+        <script src="js/seminar.js"></script>
 </body>
+
 </html>
