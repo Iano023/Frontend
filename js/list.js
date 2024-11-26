@@ -18,12 +18,29 @@ function displayAdminInfo() {
     // Get stored fullname and role from localStorage
     const fullname = localStorage.getItem('fullname');
     const role = localStorage.getItem('userRole');
+    const profileImage = localStorage.getItem('profileImage');
 
+    // Update the display
     adminName.textContent = fullname || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
     // Check role and control sidebar visibility
     const adminOnlyElements = document.querySelectorAll('.admin-only');
+    const profileImg = document.getElementById('adminProfileImage');
+
+    if (profileImage) {
+        profileImg.src = profileImage; // Firebase Storage URL is already complete
+    } else {
+        // Set a default profile image using a data URI
+        profileImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+    }
+
+    // Add error handler for image loading
+    profileImg.onerror = function () {
+        // Fallback to embedded SVG data URI if the Firebase image fails to load
+        this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
+        this.onerror = null; // Prevent infinite loop
+    };
 
     // Hide admin-only elements if the user is not a Head Admin
     if (role !== 'Head Admin') {
@@ -169,15 +186,20 @@ function updateStarRating(rating) {
 // Display user data in a table
 function displayUsers(data) {
     let html = "";
-    data.forEach(element => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    data.forEach((element, index) => {
+        // Calculate the sequential row number
+        const rowNumber = startIndex + index + 1;
+
         // Check if image exists and create appropriate HTML
-        const imageHtml = element.Image 
+        const imageHtml = element.Image
             ? `<img class="clickable-image" src="${element.Image}" alt="Driver Image" style="max-width: 100px; height: auto;" />`
             : `<div class="no-image-placeholder">No Image Available</div>`;
 
         html += `
             <tr>
-                <td><strong>${element.id}.</strong></td>
+                <td><strong>${rowNumber}.</strong></td>
                 <td class="text-align">
                     ${imageHtml}
                 </td>
@@ -254,7 +276,7 @@ function displayUsers(data) {
                         } else {
                             modalImage.style.display = 'none';
                             // Add a message when no image is available
-                            modalImage.insertAdjacentHTML('afterend', 
+                            modalImage.insertAdjacentHTML('afterend',
                                 '<div class="no-image-message">No Image Available</div>');
                         }
 
@@ -323,10 +345,14 @@ function displayUsers(data) {
 document.getElementById("editBtn").addEventListener("click", function () {
     toggleEditable(true);
 
-    // Show the "Save Changes" button and hide the "Edit" button
-    document.getElementById("editBtn").classList.add("d-none");
+
+    // Show the "Save Changes" button and "Cancel" button
     document.getElementById("saveChangesBtn").classList.remove("d-none");
     document.getElementById("cancelBtn").classList.remove("d-none");
+
+    // Hide the "Edit" and "Delete" buttons
+    document.getElementById("editBtn").classList.add("d-none");
+    document.getElementById("deleteBtn").classList.add("d-none");
 });
 
 document.getElementById("cancelBtn").addEventListener("click", function () {
@@ -337,6 +363,7 @@ document.getElementById("cancelBtn").addEventListener("click", function () {
 
     toggleEditable(false);
     document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("deleteBtn").classList.remove("d-none");
     document.getElementById("saveChangesBtn").classList.add("d-none");
     document.getElementById("cancelBtn").classList.add("d-none");
 });
@@ -389,6 +416,7 @@ document.getElementById("saveChangesBtn").addEventListener("click", async functi
 
     toggleEditable(false);
     document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("deleteBtn").classList.remove("d-none");
     document.getElementById("saveChangesBtn").classList.add("d-none");
     document.getElementById("cancelBtn").classList.add("d-none");
 });
@@ -431,11 +459,11 @@ function toggleEditable(isEditable) {
         };
 
         // Add file input change handler
-        fileInput.onchange = function(event) {
+        fileInput.onchange = function (event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const modalImage = document.getElementById('modalDriverImage');
                     modalImage.src = e.target.result;
                     modalImage.style.display = 'block';
@@ -490,6 +518,7 @@ function resetToEditState() {
 
     // Show the "Edit" button and hide the "Save" and "Cancel" buttons
     document.getElementById("editBtn").classList.remove("d-none");
+    document.getElementById("deleteBtn").classList.remove("d-none");
     document.getElementById("saveChangesBtn").classList.add("d-none");
     document.getElementById("cancelBtn").classList.add("d-none");
 }
@@ -583,6 +612,81 @@ document.getElementById('searchBar').addEventListener('keyup', function () {
             console.error('Error fetching search results:', error);
         });
 });
+
+document.getElementById("confirmDeleteBtn").addEventListener("click", async function () {
+    if (!currentEditingId) {
+        alert('Error: No driver selected for deletion');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://triqride.onrender.com/api/remove', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: currentEditingId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.msg === 'Successfully deleted!') {
+            // Close both modals
+            const deleteConfirmModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            deleteConfirmModal.hide();
+            profileModal.hide();
+
+            // Refresh the driver list
+            getUsers();
+
+            // Show success message
+            alert('Driver profile deleted successfully!');
+        } else {
+            throw new Error(data.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting driver profile: ' + error.message);
+    }
+});
+
+document.getElementById("deleteBtn").addEventListener("click", function () {
+    // Show the confirmation modal
+    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    deleteConfirmModal.show();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const profileModal = document.getElementById("profileModal"); // Reference to the Driver Profile modal
+    const deleteModal = document.getElementById("deleteConfirmModal"); // Reference to the Delete Confirmation modal
+    const profileModalContent = profileModal.querySelector(".modal-content"); // Target modal's content
+
+    // When the delete confirmation modal is shown
+    deleteModal.addEventListener("show.bs.modal", function () {
+        // Add a dimmed overlay to the profile modal
+        const dimmedOverlay = document.createElement("div");
+        dimmedOverlay.classList.add("dimmed-overlay");
+        profileModalContent.appendChild(dimmedOverlay);
+    });
+
+    // When the delete confirmation modal is hidden
+    deleteModal.addEventListener("hide.bs.modal", function () {
+        // Remove the dimmed overlay
+        const dimmedOverlay = profileModalContent.querySelector(".dimmed-overlay");
+        if (dimmedOverlay) {
+            dimmedOverlay.remove();
+        }
+    });
+});
+
+
 
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
