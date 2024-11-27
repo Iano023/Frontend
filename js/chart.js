@@ -378,8 +378,6 @@ document.querySelector('.toggle-confirm-password-visibility').addEventListener('
 
 function logout() {
     localStorage.removeItem('sessionToken');
-    sessionStorage.removeItem('headAdminId');
-    localStorage.removeItem('userId');
 
     // Clear browser cache to prevent back navigation to cached pages
     if ('caches' in window) {
