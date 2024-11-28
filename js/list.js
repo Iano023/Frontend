@@ -9,19 +9,17 @@ const submit = document.querySelector('#submit');
 const imageUpload = document.querySelector("#imageUpload");
 const imagePreview = document.querySelector("#imagePreview");
 
-// Display the logged-in user's fullname
-const adminName = document.getElementById('adminName');
-const adminRole = document.getElementById('adminRole');
+
 
 // Function to display admin info
 function displayAdminInfo() {
     // Get stored fullname and role from localStorage
-    const fullname = localStorage.getItem('fullname');
+    const username = localStorage.getItem('username');
     const role = localStorage.getItem('userRole');
     const profileImage = localStorage.getItem('profileImage');
 
     // Update the display
-    adminName.textContent = fullname || 'Unknown';
+    adminName.textContent = username || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
     // Check role and control sidebar visibility
