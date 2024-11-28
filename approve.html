@@ -50,10 +50,18 @@
             </li>
         </ul>
     </div>
-
-    <div class="main-content">
+ <div class="main-content" id="main-content">
         <div class="header">
-            <h2>Admin Approval Requests</h2>
+            <h2 id="greeting" style="font-size: 1.25rem;">
+                Good day,
+                <br>
+                <span id="adminFullname" style="font-size: 1.50rem; color: #000000;"></span>
+                <br>
+                <span id="currentDate" style="font-size: 0.9rem; color: #000000;"></span> 
+                <br>
+                <span id="currentTime" style="font-size: 0.9rem; color: #000000;"></span> 
+
+            </h2>
             <div class="admin-section dropdown">
                 <div class="admin-profile dropdown-toggle d-flex align-items-center gap-2" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                     <img id="adminProfileImage" class="admin-profile-img rounded-circle" src="" alt="Admin Profile" style="width: 40px; height: 40px;">
@@ -75,7 +83,7 @@
                         </button>
                     </li>
                 </ul>
-                </div>
+            </div>
         </div>
         
         <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
