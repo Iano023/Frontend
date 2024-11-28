@@ -183,20 +183,157 @@ function toggleSidebar() {
     sidebarOptions.classList.toggle('hidden');
 }
 
-// Session check and page load
+function loadAdminProfile(userId) {
+    // Fetch user profile data from the server
+    fetch(`https://triqride.onrender.com/api/getProfile/${userId}`)
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((data) => {
+                    throw new Error(data.message || "Failed to fetch profile.");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            // Populate the modal fields with the fetched data
+            document.getElementById("editUsername").value = data.username || "";
+            document.getElementById("editFullname").value = data.fullname || "";
+            document.getElementById("editPassword").value = ""; // Leave password field blank
+        })
+        .catch((error) => {
+            console.error("Error loading profile:", error.message);
+        });
+}
+// Submit updated profile
+function saveProfileChanges(userId) {
+    const username = document.getElementById("editUsername").value;
+    const fullname = document.getElementById("editFullname").value;
+    const password = document.getElementById("editPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    // Basic validation
+    if (!username || !fullname || !password || !confirmPassword) {
+        alert("All fields are required.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    // Update profile via PUT request
+    fetch(`https://triqride.onrender.com/api/editProfile/${userId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, fullname, password }),
+    })
+        .then((response) => {
+            if (response.ok) {
+                // Update the fullname in localStorage
+                localStorage.setItem("fullname", fullname);
+
+                // Update the display
+                displayAdminInfo();
+
+                // Close the modal
+                const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                editProfileModal.hide();
+
+                alert("Profile updated successfully.");
+            } else {
+                return response.json().then((data) => {
+                    alert(data.message || "Failed to update profile.");
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error updating profile:", error);
+        });
+}
+
+
+document.querySelector('[data-bs-target="#editProfileModal"]').addEventListener("click", () => {
+    const userId = sessionStorage.getItem('headAdminId') || localStorage.getItem('userId'); // Retrieve the user ID from storage
+    if (userId) {
+        loadAdminProfile(userId);
+    } else {
+        console.error("User ID not found in storage");
+    }
+});
+
+// Add event listener for save button
+document.getElementById("saveProfileChangesButton").addEventListener("click", () => {
+    const userId = sessionStorage.getItem('headAdminId') || localStorage.getItem('userId'); // Retrieve the user ID from storage
+    if (userId) {
+        saveProfileChanges(userId);
+    } else {
+        console.error("User ID not found in storage");
+    }
+});
+
+
+
+document.querySelector('.toggle-password-visibility').addEventListener('click', () => {
+    const passwordField = document.getElementById('editPassword');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    }
+});
+
+document.querySelector('.toggle-confirm-password-visibility').addEventListener('click', () => {
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const toggleConfirmIcon = document.getElementById('toggleConfirmPasswordIcon');
+    if (confirmPasswordField.type === 'password') {
+        confirmPasswordField.type = 'text';
+        toggleConfirmIcon.classList.remove('bi-eye-slash');
+        toggleConfirmIcon.classList.add('bi-eye');
+    } else {
+        confirmPasswordField.type = 'password';
+        toggleConfirmIcon.classList.remove('bi-eye');
+        toggleConfirmIcon.classList.add('bi-eye-slash');
+    }
+});
+
+function logout() {
+    localStorage.removeItem('sessionToken');
+    sessionStorage.removeItem('headAdminId');
+    localStorage.removeItem('userId');
+
+    // Clear browser cache to prevent back navigation to cached pages
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+
+    // Redirect to login page and prevent back button from returning to protected pages
+    window.location.replace('index.html');
+}
+
 window.addEventListener('load', () => {
     const sessionToken = localStorage.getItem('sessionToken');
-    
+
     if (!sessionToken) {
+        // Redirect to login if no token is found
         window.location.replace('index.html');
     } else {
+        // Prevent back navigation to this page if logged out
         window.history.pushState(null, '', window.location.href);
         window.onpopstate = function () {
             if (!localStorage.getItem('sessionToken')) {
                 window.location.replace('index.html');
             }
         };
-        
         displayAdminInfo();
         fetchPendingAdmins();
     }
