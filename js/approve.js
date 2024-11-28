@@ -6,12 +6,12 @@ const adminRole = document.getElementById("adminRole");
 
 function displayAdminInfo() {
     // Get stored fullname and role from localStorage
-    const fullname = localStorage.getItem('fullname');
+    const username = localStorage.getItem('username');
     const role = localStorage.getItem('userRole');
     const profileImage = localStorage.getItem('profileImage');
 
     // Update the display
-    adminName.textContent = fullname || 'Unknown';
+    adminName.textContent = username || 'Unknown';
     adminRole.textContent = role || 'Unknown Role';
 
     // Check role and control sidebar visibility
