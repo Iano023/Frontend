@@ -307,6 +307,7 @@ function saveProfileChanges(userId) {
                 editProfileModal.hide();
 
                 alert("Profile updated successfully.");
+                resetPasswordFields();
             } else {
                 return response.json().then((data) => {
                     alert(data.message || "Failed to update profile.");
@@ -317,6 +318,32 @@ function saveProfileChanges(userId) {
             console.error("Error updating profile:", error);
         });
 }
+
+function resetPasswordFields() {
+    const passwordField = document.getElementById("editPassword");
+    const confirmPasswordField = document.getElementById("confirmPassword");
+    const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+    const toggleConfirmPasswordIcon = document.getElementById("toggleConfirmPasswordIcon");
+
+    // Clear the password fields
+    passwordField.value = "";
+    confirmPasswordField.value = "";
+
+    // Reset visibility to obscure
+    passwordField.type = "password";
+    confirmPasswordField.type = "password";
+
+    // Reset toggle icons
+    togglePasswordIcon.classList.remove("bi-eye");
+    togglePasswordIcon.classList.add("bi-eye-slash");
+
+    toggleConfirmPasswordIcon.classList.remove("bi-eye");
+    toggleConfirmPasswordIcon.classList.add("bi-eye-slash");
+}
+
+document.getElementById('editProfileModal').addEventListener('hidden.bs.modal', () => {
+    resetPasswordFields();
+});
 
 
 document.querySelector('[data-bs-target="#editProfileModal"]').addEventListener("click", () => {
