@@ -439,6 +439,9 @@ function logout() {
 
     // Redirect to login page and prevent back button from returning to protected pages
     window.location.replace('index.html');
+
+     // Reset history state to prevent back button navigation
+    window.history.replaceState(null, '', 'index.html');
 }
 
 window.addEventListener('load', () => {
