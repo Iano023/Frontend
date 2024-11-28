@@ -13,7 +13,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
         if (response.ok) {
             alert(data.message);
             // Store user information in localStorage
-            localStorage.setItem('username', data.username);
+            localStorage.setItem('username', username);
             localStorage.setItem('fullname', data.fullname);
             localStorage.setItem('sessionToken', data.token);
             localStorage.setItem('userRole', data.role);
