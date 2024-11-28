@@ -11,39 +11,61 @@ function toggleSidebar() {
 
 // Display admin name
 function displayAdminInfo() {
-
-    const fullname = localStorage.getItem('fullname');
+    const username = localStorage.getItem('username'); // Get the username
+    const fullname = localStorage.getItem('fullname'); // Get the full name
     const role = localStorage.getItem('userRole');
     const profileImage = localStorage.getItem('profileImage');
 
-    // Update the display
-    adminName.textContent = fullname || 'Unknown';
+    // Update the greeting and full name
+    const adminFullnameElement = document.getElementById('adminFullname');
+    adminFullnameElement.textContent = fullname || ''; // Set the full name or leave empty if not available
+
+    // Update the admin name and role
+    adminName.textContent = username || 'Unknown'; // Set the username
     adminRole.textContent = role || 'Unknown Role';
 
-    // Check role and control sidebar visibility
-    const adminOnlyElements = document.querySelectorAll('.admin-only');
+    // Profile image handling
     const profileImg = document.getElementById('adminProfileImage');
-    
     if (profileImage) {
-        profileImg.src = profileImage; // Firebase Storage URL is already complete
+        profileImg.src = profileImage;
     } else {
-        // Set a default profile image using a data URI
         profileImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
     }
-    
-    // Add error handler for image loading
+
     profileImg.onerror = function() {
-        // Fallback to embedded SVG data URI if the Firebase image fails to load
         this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+';
         this.onerror = null; // Prevent infinite loop
     };
 
-    // Hide admin-only elements if the user is not a Head Admin
+    // Display the current date in Asia/Manila timezone
+    const currentDateElement = document.getElementById('currentDate');
+    const currentTimeElement = document.getElementById('currentTime');
+    const now = new Date();
+
+    // Convert to Asia/Manila timezone
+    const dateOptions = { timeZone: 'Asia/Manila', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const timeOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+    
+    const manilaDate = new Intl.DateTimeFormat('en-PH', dateOptions).format(now);
+    const manilaTime = new Intl.DateTimeFormat('en-PH', timeOptions).format(now);
+    
+    currentDateElement.textContent = manilaDate;
+    currentTimeElement.textContent = manilaTime;
+
+    // Role-based visibility control
+    const adminOnlyElements = document.querySelectorAll('.admin-only');
     if (role !== 'Head Admin') {
         adminOnlyElements.forEach(element => {
             element.style.display = 'none';
         });
     }
+
+    // Update time every second
+    setInterval(() => {
+        const now = new Date();
+        const manilaTime = new Intl.DateTimeFormat('en-PH', timeOptions).format(now);
+        currentTimeElement.textContent = manilaTime;
+    }, 1000);
 }
 
 // Chart configurations
